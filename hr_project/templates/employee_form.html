@@ -1,0 +1,622 @@
+{% extends 'base.html' %}
+{% block title %}{% if employee %}직원 수정{% else %}직원 추가{% endif %} · Mega Coffee HR{% endblock %}
+{% block nav_employees_active %}active{% endblock %}
+
+{% block content %}
+<style>
+  /* Form layout improvements */
+  .form-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  }
+
+  .form-section {
+    margin-bottom: 32px;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .profile-upload {
+    grid-column: span 2;
+  }
+
+  .profile-preview-area {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    border: 2px dashed #cbd5e1;
+  }
+
+  .avatar {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    opacity: 0.3;
+  }
+
+  .avatar.lg[style*="background-image"] .avatar-placeholder {
+    display: none;
+  }
+
+  .upload-hint {
+    flex: 1;
+  }
+
+  .upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  }
+
+  .upload-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+  }
+
+  .upload-icon {
+    font-size: 18px;
+  }
+
+  .wage-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .wage-prefix {
+    position: absolute;
+    left: 14px;
+    font-weight: 600;
+    color: #6b7280;
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  .wage-input-wrapper input {
+    padding-left: 36px !important;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .color-picker-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .color-preview-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+  }
+
+  .color-preview-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    border: 3px solid #e5e7eb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .color-preview-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  #colorInput {
+    width: 64px;
+    height: 64px;
+    border: 3px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+
+  #colorInput:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .color-hint {
+    font-size: 13px;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-top: 24px;
+    margin-top: 24px;
+    border-top: 2px solid #f3f4f6;
+  }
+
+  .form-actions .btn {
+    min-width: 120px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.3s ease;
+  }
+
+  .form-actions .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .form-actions .btn.primary {
+    min-width: 160px;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+  }
+
+  .form-actions .btn.primary:hover {
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+  }
+
+  /* Enhanced form fields */
+  .form-field label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+
+  .form-field input,
+  .form-field select,
+  .form-field textarea {
+    transition: all 0.3s ease;
+  }
+
+  .form-field input:focus,
+  .form-field select:focus,
+  .form-field textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+  }
+
+  .form-field textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .form-field.span-2 {
+      grid-column: span 1;
+    }
+
+    .profile-upload {
+      grid-column: span 1;
+    }
+
+    .profile-preview-area {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .color-preview-group {
+      justify-content: center;
+    }
+  }
+</style>
+<div class="page-header">
+  <h1>{% if employee %}직원 정보 수정{% else %}새 직원 등록{% endif %}</h1>
+</div>
+
+<form class="card form-card" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  
+  <!-- 기본 정보 섹션 -->
+  <div class="form-section">
+    <h3 class="section-title">👤 기본 정보</h3>
+    <div class="form-grid">
+      <div class="form-field profile-upload">
+        <label>프로필 사진</label>
+        <div class="profile-preview-area">
+          <div class="avatar lg" id="avatarPreview">
+            <div class="avatar-placeholder">📷</div>
+          </div>
+          <div class="upload-hint">
+            <label for="imageInput" class="upload-label">
+              <span class="upload-icon">📁</span>
+              <span>사진 선택</span>
+            </label>
+            <input type="file" name="image" id="imageInput" accept="image/*" style="display: none;" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>이름 *</label>
+        <input type="text" name="full_name" placeholder="이름을 입력하세요" value="{{ employee.full_name|default:'' }}" required />
+      </div>
+
+      <div class="form-field">
+        <label>출생년도 *</label>
+        <select name="birth_year" id="ageSelect" required>
+          <option value="">출생년도 선택하세요</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>전화번호 *</label>
+        <input type="tel" name="phone" placeholder="010-1234-5678" value="{{ employee.phone|default:'' }}" required />
+      </div>
+
+      <div class="form-field span-2">
+        <label>주소 *</label>
+        <input type="text" name="address" placeholder="주소를 입력하세요" value="{{ employee.address|default:'' }}" required />
+      </div>
+    </div>
+  </div>
+
+  <!-- 근무 정보 섹션 -->
+  <div class="form-section">
+    <h3 class="section-title">💼 근무 정보</h3>
+    <div class="form-grid">
+      <div class="form-field span-2">
+        <label><span id="shiftLabel">근무 시간 *</span></label>
+        <select name="shift" id="shiftSelect" required>
+          <option value="">근무 시간을 선택하세요</option>
+          {% for s in shifts %}
+          <option value="{{ s.id }}" {% if employee and employee.shift and employee.shift.id == s.id %}selected{% endif %}>
+            {% if '오픈' in s.name %}오픈{% elif '마감' in s.name %}마감{% elif '미들' in s.name %}미들{% endif %} | 
+            {% if '월화수' in s.name %}월화수{% elif '목금' in s.name %}목금{% elif '토일' in s.name %}토일{% endif %} | 
+            {{ s.time_range }}
+          </option>
+          {% empty %}
+          <option value="" disabled>근무 시간 데이터가 없습니다</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>역할 *</label>
+        <select name="role" required>
+          <option value="">역할 선택하세요</option>
+          <option value="part_time" {% if employee and employee.role == 'part_time' %}selected{% endif %}>파트타임</option>
+          <option value="manager" {% if employee and employee.role == 'manager' %}selected{% endif %}>매니저</option>
+          <option value="substitute" {% if employee and employee.role == 'substitute' %}selected{% endif %}>대체근무</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label>급여 유형 *</label>
+        <select name="wage_type" required>
+          <option value="hourly" {% if employee and employee.wage_type == 'hourly' %}selected{% elif not employee %}selected{% endif %}>시급</option>
+          <option value="monthly" {% if employee and employee.wage_type == 'monthly' %}selected{% endif %}>월급</option>
+        </select>
+      </div>
+
+      <div class="form-field span-2">
+        <label>급여 *</label>
+        <div class="wage-input-wrapper">
+          <span class="wage-prefix">₩</span>
+          <input type="number" name="wage" placeholder="급여를 입력하세요" value="{{ employee.wage|default:'10030' }}" required />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시스템 설정 섹션 -->
+  <div class="form-section">
+    <h3 class="section-title">⚙️ 시스템 설정</h3>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>출석 번호 *</label>
+        <input type="text" name="attendance_pin" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" value="{{ employee.attendance_pin|default:'' }}" required />
+      </div>
+
+      <div class="form-field">
+        <label>출석 번호 확인 *</label>
+        <input type="password" name="pin_confirm" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" required />
+      </div>
+
+      <div class="form-field span-2">
+        <label>직원 구분 색상 *</label>
+        <div class="color-picker-section">
+          <div class="color-preview-group">
+            <button class="color-preview-btn" type="button" id="colorPickerBtn">
+              <span class="color-icon">🎨</span>
+            </button>
+            <input type="color" name="color_tag" id="colorInput" value="{{ employee.color_tag|default:'#22c55e' }}" />
+          </div>
+          <span class="color-hint">스케줄 및 출석에서 직원을 구분하는 색상입니다</span>
+        </div>
+        <input type="hidden" name="favorite_color" value="#2563eb" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 추가 정보 섹션 -->
+  <div class="form-section">
+    <h3 class="section-title">📝 추가 정보</h3>
+    <div class="form-grid">
+      <div class="form-field span-2">
+        <label>메모</label>
+        <textarea name="memo" placeholder="추가 메모사항을 입력하세요">{{ employee.memo|default:'' }}</textarea>
+      </div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <a href="{% url 'employees' %}" class="btn">‹ 이전</a>
+    <button class="btn primary" type="submit">{% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>
+  </div>
+</form>
+<script>
+  const form = document.querySelector('form.form-card');
+  const phoneInput = form.querySelector('input[name="phone"]');
+  const imageInput = document.getElementById('imageInput');
+  const avatarPreview = document.getElementById('avatarPreview');
+  const ageSelect = document.getElementById('ageSelect');
+  const colorBtn = document.getElementById('colorPickerBtn');
+  const colorInput = document.getElementById('colorInput');
+  const pinInput = form.querySelector('input[name="attendance_pin"]');
+  const pinConfirmInput = form.querySelector('input[name="pin_confirm"]');
+  const wageInput = form.querySelector('input[name="wage"]');
+  const wageTypeSelect = form.querySelector('select[name="wage_type"]');
+  const roleSelect = form.querySelector('select[name="role"]');
+  const shiftSelect = document.getElementById('shiftSelect');
+  const shiftLabel = document.getElementById('shiftLabel');
+
+  // 2025년 최저시급 기준
+  const MIN_HOURLY_WAGE = 10030;
+  const MIN_MONTHLY_WAGE = 2096270; // 10030 × 209시간
+
+  // Role Settings 데이터 (기본 급여)
+  const roleSettings = {
+    {% for role_setting in role_settings %}
+    '{{ role_setting.role }}': {
+      base_wage: {{ role_setting.base_wage }},
+      wage_type: '{{ role_setting.wage_type }}'
+    },
+    {% endfor %}
+  };
+
+  function populateBirthYears() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const maxAge = 70;
+    const minAge = 14;
+    const startYear = currentYear - minAge;
+    const endYear = currentYear - maxAge;
+    {% if employee %}
+    const employeeBirthYear = {{ employee.birth_year }};
+    {% endif %}
+    for (let y = startYear; y >= endYear; y--) {
+      const opt = document.createElement('option');
+      opt.value = String(y);
+      opt.textContent = String(y);
+      {% if employee %}
+      if (y === employeeBirthYear) {
+        opt.selected = true;
+      }
+      {% endif %}
+      ageSelect.appendChild(opt);
+    }
+  }
+
+  function handleImagePreview(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      avatarPreview.style.backgroundImage = `url('${e.target.result}')`;
+      avatarPreview.style.backgroundSize = 'cover';
+      avatarPreview.style.backgroundPosition = 'center';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function openColorPicker(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    colorInput.click();
+  }
+
+  function applySelectedColor(value) {
+    colorBtn.style.background = value;
+    colorBtn.style.color = value;
+    colorBtn.style.border = '2px solid ' + value;
+  }
+
+  function updateWageByRole() {
+    const selectedRole = roleSelect.value;
+    
+    // 기존 직원 수정 중에는 자동으로 변경하지 않음
+    {% if employee %}
+    return;
+    {% endif %}
+    
+    // 매니저 선택 시 근무시간 required 제거
+    if (selectedRole === 'manager') {
+      shiftSelect.removeAttribute('required');
+      shiftLabel.textContent = '근무 시간';
+      shiftSelect.value = ''; // 선택 초기화
+    } else {
+      shiftSelect.setAttribute('required', 'required');
+      shiftLabel.textContent = '근무 시간 *';
+    }
+    
+    // 역할별 기본 급여 설정
+    if (selectedRole && roleSettings[selectedRole]) {
+      const roleSetting = roleSettings[selectedRole];
+      wageInput.value = roleSetting.base_wage;
+      wageTypeSelect.value = roleSetting.wage_type;
+    }
+  }
+
+  function updateWageByType() {
+    const selectedType = wageTypeSelect.value;
+    const currentWage = parseInt(wageInput.value) || 0;
+    
+    // 기존 직원 수정 중이고 급여가 이미 설정되어 있으면 변경하지 않음
+    {% if employee %}
+    if (currentWage > 0 && currentWage !== MIN_HOURLY_WAGE && currentWage !== MIN_MONTHLY_WAGE) {
+      return;
+    }
+    {% endif %}
+    
+    if (selectedType === 'hourly') {
+      wageInput.value = MIN_HOURLY_WAGE;
+    } else if (selectedType === 'monthly') {
+      wageInput.value = MIN_MONTHLY_WAGE;
+    }
+  }
+
+  function formatPhoneNumber(value) {
+    // 숫자만 추출
+    const numbers = value.replace(/[^\d]/g, '');
+    
+    // 최대 11자리까지만
+    const limitedNumbers = numbers.slice(0, 11);
+    
+    // 포매팅
+    if (limitedNumbers.length <= 3) {
+      return limitedNumbers;
+    } else if (limitedNumbers.length <= 7) {
+      return `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3)}`;
+    } else {
+      return `${limitedNumbers.slice(0, 3)}-${limitedNumbers.slice(3, 7)}-${limitedNumbers.slice(7)}`;
+    }
+  }
+
+  function handlePhoneInput(e) {
+    const formatted = formatPhoneNumber(e.target.value);
+    e.target.value = formatted;
+  }
+
+  function validatePhoneOnSubmit(e) {
+    const raw = phoneInput.value.replace(/[^\d]/g, '');
+    const isDigits = /^\d{11}$/.test(raw);
+    const starts010 = raw.startsWith('010');
+    if (!isDigits || !starts010) {
+      alert('전화번호를 다시 확인해주세요. 11자리이며 010으로 시작해야 합니다.');
+      phoneInput.focus();
+      e.preventDefault();
+      return false;
+    }
+
+    // PIN 확인
+    if (pinInput.value !== pinConfirmInput.value) {
+      alert('출석번호와 확인번호가 일치하지 않습니다.');
+      pinConfirmInput.focus();
+      e.preventDefault();
+      return false;
+    }
+  }
+
+  // 초기화
+  populateBirthYears();
+  
+  // 기존 전화번호 포매팅 (수정 모드일 때)
+  {% if employee %}
+  phoneInput.value = formatPhoneNumber(phoneInput.value);
+  {% endif %}
+  
+  {% if employee and employee.image %}
+  avatarPreview.style.backgroundImage = `url('{{ employee.image.url }}')`;
+  avatarPreview.style.backgroundSize = 'cover';
+  avatarPreview.style.backgroundPosition = 'center';
+  {% endif %}
+
+  // 이벤트 리스너
+  // 전화번호 자동 포매팅
+  phoneInput.addEventListener('input', handlePhoneInput);
+  
+  // 이미지 파일 선택 시 미리보기
+  imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      handleImagePreview(file);
+    }
+  });
+
+  // 역할 변경 시 기본 급여 자동 설정 및 근무시간 required 처리
+  roleSelect.addEventListener('change', updateWageByRole);
+
+  // 급여 유형 변경 시 급여 초기값 업데이트
+  wageTypeSelect.addEventListener('change', updateWageByType);
+  
+  form.addEventListener('submit', validatePhoneOnSubmit);
+
+  // 초기 색상 적용
+  applySelectedColor(colorInput.value);
+  
+  // 초기 급여값 설정 (새 직원 등록 시에만)
+  {% if not employee %}
+  updateWageByType();
+  {% endif %}
+  
+  // 색상 버튼 클릭 시 색상 피커 열기
+  colorBtn.addEventListener('click', openColorPicker);
+  
+  // 색상 피커 변경 시 버튼 색상 업데이트
+  colorInput.addEventListener('input', (ev) => {
+    applySelectedColor(ev.target.value);
+  });
+  
+  // 색상 피커 직접 변경 시에도 버튼 업데이트
+  colorInput.addEventListener('change', (ev) => {
+    applySelectedColor(ev.target.value);
+  });
+  
+  form.addEventListener('submit', validatePhoneOnSubmit);
+
+  // 초기 색상 적용
+  applySelectedColor(colorInput.value);
+</script>
+{% endblock %}
