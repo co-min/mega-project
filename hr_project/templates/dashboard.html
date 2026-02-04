@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
-{% load dashboard_extras %}
+
 {% block title %}Dashboard · Mega Coffee HR{% endblock %}
 {% block nav_dashboard_active %}active{% endblock %}
 
@@ -213,7 +213,7 @@
       <h2>📅 오늘의 일정 추가</h2>
       <button class="close-btn" onclick="closeEventModal()">&times;</button>
     </div>
-    <form method="post" action="{% url 'dashboard' %}">
+    <form method="post" action="">
       {% csrf_token %}
       <input type="hidden" name="action" value="add_event">
       

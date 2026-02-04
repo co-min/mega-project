@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db import transaction
-from .models import Employee
-from wages.models import Wage
-from schedule.models import Schedule
 from datetime import date
+from .models import Employee
+from schedule.models import Schedule
+from wages.models import Wage
 
 # 직원 목록 페이지
 def employees_list_view(request):
@@ -12,13 +12,13 @@ def employees_list_view(request):
     context = {
         'employees': employees,
     }
-    return render(request, 'employees_list.html', context)
+    return render(request, 'employees.html', context)
 
 # 직원 생성 및 수정
 def employee_form_view(request, pk=None):
     employee = None
     if pk:
-        employee = get_object_or_404(Employee, pk=pk) # 객체
+        employee = get_object_or_404(Employee, pk=pk)
     else:
         employee = None
     
@@ -28,7 +28,6 @@ def employee_form_view(request, pk=None):
         work_type = request.POST.get('work_type')
         work_days = request.POST.getlist('work_days')
         work_time = request.POST.get('work_time')
-        hourly_wage = request.POST.get('hourly_wage')
         attendance_pin = request.POST.get('attendance_pin')
         color_tag = request.POST.get('color_tag')
 
@@ -53,6 +52,12 @@ def employee_form_view(request, pk=None):
                         attendance_pin=attendance_pin,
                         color_tag=color_tag,
                     )
+                    #기본 월급 생성
+                    Wage.objects.create(
+                        employee= employee,
+                        hourly_wage = 10500,
+                        effective_start_date = date.today(),
+                    )
                     messages.success(request, f'{full_name} 직원이 등록되었습니다.')
             
                 # 근무 유형 / 근무 타임
@@ -66,19 +71,6 @@ def employee_form_view(request, pk=None):
                                 'work_time': work_time,
                             }
                         )
-
-                # 시급 관리
-                if hourly_wage:
-                    new_wage = int(hourly_wage)
-                    latest_wage = Wage.objects.filter(employee=employee).order_by('-effective_start_date').first()
-
-                    if not latest_wage or latest_wage.hourly_wage != new_wage:
-                        Wage.objects.create(
-                            employee=employee,
-                            hourly_wage=int(hourly_wage),
-                            effective_start_date = date.today()
-                        )
-                return redirect('employees')
         
         except Exception as e:
             messages.error(request, f'오류가 발생했습니다: {str(e)}')
@@ -95,4 +87,4 @@ def employee_delete_view(request, pk):
     employee.save()
     messages.success(request, f'{employee.full_name} 직원이 퇴사 처리되었습니다.')
     
-    return redirect('employees')
+    return redirect('employees:employees_list')

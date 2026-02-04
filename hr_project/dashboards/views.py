@@ -2,15 +2,51 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from datetime import datetime, timedelta, time
 import calendar
-from .models import Event
-from employees.models import Employee
+from employees.models import Employee, Event
 from attendances.models import AttendanceRecord
-from schedule.models import Schedule
+
+
+def auto_checkout_expired_shifts():
+    """근무 시간이 지난 직원들을 자동으로 퇴근 처리"""
+    now = datetime.now()
+    today = now.date()
+    current_time = now.time()
+    
+    # 오늘 근무 중인 모든 출석 기록
+    working_records = AttendanceRecord.objects.filter(
+        date=today,
+        status='working',
+        employee__shift__isnull=False
+    ).select_related('employee__shift')
+    
+    for record in working_records:
+        shift = record.employee.shift
+        # time_range에서 종료 시간 추출 (예: "08:00-16:00")
+        if shift and shift.time_range:
+            try:
+                time_parts = shift.time_range.split('-')
+                if len(time_parts) == 2:
+                    end_time_str = time_parts[1].strip()
+                    end_hour, end_minute = map(int, end_time_str.split(':'))
+                    shift_end_time = time(end_hour, end_minute)
+                    
+                    # 근무 종료 시간이 지났으면 자동 퇴근 처리
+                    if current_time >= shift_end_time:
+                        record.status = 'finished'
+                        if not record.check_out:
+                            record.check_out = shift_end_time
+                        record.save()
+            except (ValueError, IndexError):
+                # time_range 파싱 실패 시 무시
+                continue
+
 
 def dashboard_view(request):
+    """대시보드 메인 화면 - 캘린더, 직원 상태, 공지사항"""
     # POST 요청 처리 - 이벤트 추가
     if request.method == 'POST' and request.POST.get('action') == 'add_event':
         today = datetime.now().date()
+        
         # 각 직원에 대한 이벤트 처리
         for key, value in request.POST.items():
             if key.startswith('event_'):
@@ -47,12 +83,63 @@ def dashboard_view(request):
                     }
                     color = color_map.get(value, 'blue')
                     
+                    # 근무 시간 가져오기
+                    start_time = time(9, 0)  # 기본값
+                    end_time = time(18, 0)
+                    
+                    # 조퇴의 경우 사용자가 입력한 시간 사용
+                    if value == 'early_leave':
+                        early_time_key = f'early_time_{employee_id}'
+                        if early_time_key in request.POST and request.POST[early_time_key]:
+                            try:
+                                early_time_str = request.POST[early_time_key]
+                                early_hour, early_minute = map(int, early_time_str.split(':'))
+                                end_time = time(early_hour, early_minute)
+                            except:
+                                pass
+                    # 대타의 경우 시작/종료 시간 모두 입력받음
+                    elif value == 'substitute':
+                        sub_start_key = f'sub_start_{employee_id}'
+                        sub_end_key = f'sub_end_{employee_id}'
+                        if sub_start_key in request.POST and request.POST[sub_start_key]:
+                            try:
+                                start_time_str = request.POST[sub_start_key]
+                                start_hour, start_minute = map(int, start_time_str.split(':'))
+                                start_time = time(start_hour, start_minute)
+                            except:
+                                pass
+                        if sub_end_key in request.POST and request.POST[sub_end_key]:
+                            try:
+                                end_time_str = request.POST[sub_end_key]
+                                end_hour, end_minute = map(int, end_time_str.split(':'))
+                                end_time = time(end_hour, end_minute)
+                            except:
+                                pass
+                    
+                    if employee.shift and employee.shift.time_range:
+                        try:
+                            time_parts = employee.shift.time_range.split('-')
+                            # 조퇴나 대타가 아니면 원래 시간 사용
+                            if value not in ['early_leave', 'substitute']:
+                                start_hour, start_minute = map(int, time_parts[0].strip().split(':'))
+                                start_time = time(start_hour, start_minute)
+                                end_hour, end_minute = map(int, time_parts[1].strip().split(':'))
+                                end_time = time(end_hour, end_minute)
+                            # 조퇴는 시작시간만 원래대로
+                            elif value == 'early_leave':
+                                start_hour, start_minute = map(int, time_parts[0].strip().split(':'))
+                                start_time = time(start_hour, start_minute)
+                        except:
+                            pass
+                    
                     # 이벤트 생성 또는 업데이트
                     Event.objects.update_or_create(
                         employee=employee,
                         date=today,
                         defaults={
                             'name': event_name,
+                            'start': start_time,
+                            'end': end_time,
                             'color': color
                         }
                     )
@@ -80,6 +167,9 @@ def dashboard_view(request):
         
         messages.success(request, '일정이 추가되었습니다.')
         return redirect('dashboard')
+    
+    # 자동 퇴근 처리 실행
+    auto_checkout_expired_shifts()
     
     # URL 파라미터에서 년월 가져오기
     year = int(request.GET.get('year', datetime.now().year))
@@ -113,15 +203,14 @@ def dashboard_view(request):
     
     # 날짜별 이벤트 매핑
     events_by_day = {}
-    attendance_records = AttendanceRecord.objects.get()
-    plan = Schedule.objects.get()
     for event in events_in_month:
         day = event.date.day
         if day not in events_by_day:
             events_by_day[day] = []
-        # 여기에 schedule, attendance를 이벤트로 추가해야 캘린더에서 볼 수 있는지 생각해보기 !!
         events_by_day[day].append({
             'name': event.name,
+            'start': event.start.strftime('%H:%M'),
+            'end': event.end.strftime('%H:%M'),
             'color': event.color,
             'employee_color': event.employee.color_tag if event.employee else '#22c55e'
         })

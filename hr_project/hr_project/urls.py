@@ -24,9 +24,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('profile/', views.profile_view, name='profile'),
     path('setting/', views.setting_view, name='setting'),
-    path('employees/', include('employees.urls')),
+    
+    path('employees/', include(('employees.urls', 'employees'), namespace='employees')),
     path('attendance/', include('attendances.urls')),
-    path('', include('dashboards.urls')),
+    path('schedule/', include('schedule.urls')),
+    path('wages/', include('wages.urls')),
 ]
 
 # 개발 환경에서 미디어 파일 서빙
