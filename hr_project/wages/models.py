@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 
-#시급 관리
+# 시급 관리
 class Wage(models.Model):
   employee = models.ForeignKey('employees.Employee', on_delete=models.CASCADE, related_name='wages')
   hourly_wage = models.IntegerField(validators=[MinValueValidator(0)])

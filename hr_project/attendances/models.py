@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from employees.models import Employee
 
-#실제 출퇴근 기록
+# 실제 출퇴근 기록
 class AttendanceRecord(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='attendance_records')
     date = models.DateField()
@@ -17,9 +17,8 @@ class AttendanceRecord(models.Model):
         return f"{self.employee.full_name} - {self.date}"
 
 
-#근무 상태
+# 근무 상태
 class Status(models.TextChoices):
-    NOT_CHECKED_IN = 'not_checked_in', _('근무전')
     WORKING = 'working', _('근무중')
     FINISHED = 'finished', _('퇴근')
-    ABSENT = 'absent', _('결근')
+
