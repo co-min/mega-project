@@ -118,7 +118,7 @@
     <h2>Employee</h2>
     <div class="actions">
       <button class="btn primary" onclick="openSettingsModal()">⚙️ 직원 기본 설정</button>
-      <a href="{% url 'employees:employee_create' %}" class="btn primary">Add mate</a>
+      <a href="{% url 'employee_form' %}" class="btn primary">Add mate</a>
     </div>
   </div>
   <table class="table">
@@ -152,8 +152,8 @@
         <td>{{ emp.get_role_display }}</td>
         <td>
           <div style="display: flex; gap: 8px;">
-            <a href="{% url 'employees:employee_edit' emp.pk %}" class="btn" style="padding: 4px 12px; font-size: 14px;">수정</a>
-            <form method="post" action="{% url 'employees:employee_delete' emp.pk %}" style="display: inline;" onsubmit="return confirm('{{ emp.full_name }} 직원을 삭제하시겠습니까?');">
+            <a href="{% url 'employee_edit' emp.pk %}" class="btn" style="padding: 4px 12px; font-size: 14px;">수정</a>
+            <form method="post" action="{% url 'employee_delete' emp.pk %}" style="display: inline;" onsubmit="return confirm('{{ emp.full_name }} 직원을 삭제하시겠습니까?');">
               {% csrf_token %}
               <button type="submit" class="btn" style="padding: 4px 12px; font-size: 14px; background: #ef4444; color: white;">삭제</button>
             </form>
@@ -269,7 +269,7 @@
       <h2>역할 설정 편집</h2>
       <button class="close-btn" onclick="closeModal('roleModal')">&times;</button>
     </div>
-    <form method="post" action="{% url 'employees:employees_list' %}">
+    <form method="post" action="{% url 'employees' %}">
       {% csrf_token %}
       <input type="hidden" name="action" value="update_roles">
       <table class="table editable-table">
@@ -315,7 +315,7 @@
       <h2>최대/최소 급여 설정</h2>
       <button class="close-btn" onclick="closeModal('maxModal')">&times;</button>
     </div>
-    <form method="post" action="{% url 'employees:employees_list' %}" id="maxSettingForm">
+    <form method="post" action="{% url 'employees' %}" id="maxSettingForm">
       {% csrf_token %}
       <input type="hidden" name="action" value="update_max">
       {% for max_setting in max_settings %}
@@ -348,7 +348,7 @@
       <h2>구인 상태 편집</h2>
       <button class="close-btn" onclick="closeModal('hiringModal')">&times;</button>
     </div>
-    <form method="post" action="{% url 'employees:employees_list' %}">
+    <form method="post" action="{% url 'employees' %}">
       {% csrf_token %}
       <input type="hidden" name="action" value="update_hiring">
       <table class="table editable-table" id="hiringTable">
@@ -490,7 +490,7 @@
       // 폼을 동적으로 생성하여 제출
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '{% url "employees:employees_list" %}';
+      form.action = '{% url "employees" %}';
       
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
       const csrfInput = document.createElement('input');
