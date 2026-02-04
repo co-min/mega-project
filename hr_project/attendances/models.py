@@ -12,7 +12,7 @@ class AttendanceRecord(models.Model):
     class Meta:
         ordering = ['-date', '-check_in']
         unique_together = ['employee', 'date']
-    
+        
     def __str__(self):
         return f"{self.employee.full_name} - {self.date}"
 

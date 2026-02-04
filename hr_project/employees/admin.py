@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Employee, Event, Announcement
+from .models import Employee
 
 
 @admin.register(Employee)
