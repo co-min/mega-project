@@ -1,6 +1,6 @@
 from django.db import models
 from employees.models import Employee
-from schedule.constants import WORK_TIME, WORK_TYPE, WEEKDAYS, TIME_MAP
+from schedules.constants import WORK_TIME, WORK_TYPE, WEEKDAYS, TIME_MAP
 
 # 근무 스케줄 템플릿
 class Schedule(models.Model):

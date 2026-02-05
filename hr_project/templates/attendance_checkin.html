@@ -179,7 +179,7 @@
           {% endfor %}
         {% endif %}
 
-        <form method="post" action="{% url 'attendance_checkin' %}" id="checkinForm">
+        <form method="post" action="{% url 'attendances:checkin' %}" id="checkinForm">
           {% csrf_token %}
           <div class="pin-display" id="pinDisplay">----</div>
           <input type="hidden" name="pin" id="pinInput" value="">

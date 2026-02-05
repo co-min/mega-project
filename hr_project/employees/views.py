@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db import transaction
 from datetime import date
 from .models import Employee
-from schedule.models import Schedule
+from schedules.models import Schedule
 from wages.models import Wage
 
 # 직원 목록 페이지
@@ -53,11 +53,12 @@ def employee_form_view(request, pk=None):
                         color_tag=color_tag,
                     )
                     #기본 월급 생성
-                    Wage.objects.create(
-                        employee= employee,
-                        hourly_wage = 10500,
-                        effective_start_date = date.today(),
-                    )
+                    if not Wage.objects.filter(employee=employee).exist():
+                        Wage.objects.create(
+                            employee= employee,
+                            hourly_wage = 10500,
+                            effective_start_date = date.today(),
+                        )
                     messages.success(request, f'{full_name} 직원이 등록되었습니다.')
             
                 # 근무 유형 / 근무 타임
@@ -65,7 +66,7 @@ def employee_form_view(request, pk=None):
                     for day in work_days:
                         Schedule.objects.update_or_create(
                             employee = employee,
-                            work_days= day,
+                            work_days= int(day),
                             defaults={
                                 'work_type': work_type,
                                 'work_time': work_time,

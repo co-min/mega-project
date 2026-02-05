@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from datetime import date, relativedelta
-from schedule.views import create_monthly_schedule
+from schedules.views import create_monthly_schedule
 
 # 전 날 말일에 다음 달 스케줄 미리 생성
 class Command(BaseCommand):

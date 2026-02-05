@@ -29,11 +29,11 @@
 					<span class="icon">📊</span>
 					<span>Dashboard</span>
 				</a>
-				<a href="{% url 'attendance' %}" class="menu-item {% block nav_attendance_active %}{% endblock %}">
+				<a href="{% url 'attendances:attendances' %}" class="menu-item {% block nav_attendance_active %}{% endblock %}">
 					<span class="icon">🗓️</span>
 					<span>Attendance</span>
 				</a>
-				<a href="{% url 'employees' %}" class="menu-item {% block nav_employees_active %}{% endblock %}">
+				<a href="{% url 'employees:list' %}" class="menu-item {% block nav_employees_active %}{% endblock %}">
 					<span class="icon">👥</span>
 					<span>Employees</span>
 				</a>

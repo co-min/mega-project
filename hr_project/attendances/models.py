@@ -19,6 +19,9 @@ class AttendanceRecord(models.Model):
 
 # 근무 상태
 class Status(models.TextChoices):
+    PLANNED = 'planned', _('근무 예정')
     WORKING = 'working', _('근무중')
     FINISHED = 'finished', _('퇴근')
+    ABSENT = 'absent', _('결근')
+
 

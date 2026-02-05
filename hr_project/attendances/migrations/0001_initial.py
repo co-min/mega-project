@@ -20,8 +20,6 @@ class Migration(migrations.Migration):
                 ('date', models.DateField()),
                 ('check_in', models.TimeField(blank=True, null=True)),
                 ('check_out', models.TimeField(blank=True, null=True)),
-                ('status', models.CharField(choices=[('working', '근무중'), ('finished', '퇴근'), ('sick_leave', '병가'), ('vacation', '휴가'), ('absent', '결근')], default='working', max_length=20)),
-                ('memo', models.TextField(blank=True)),
                 ('employee', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attendance_records', to='employees.employee')),
             ],
             options={

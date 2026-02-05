@@ -39,7 +39,7 @@ def monthly_wage_view (request):
       effective_start_date__lte=end_date
     ).order_by('-effective_start_date').first()
 
-    total_hour = total_time.total_seconds()/600
+    total_hour = total_time.total_seconds()/3600
     monthly_salary = total_hour * wage.hourly_wage
     salary_list.append({
       'total_hour':round(total_hour, 1), # 15.5시간 등으로 표시
@@ -113,8 +113,8 @@ def check_wage_view(request):
       effective_start_date__lte=end_date
     ).first()
   
-  total_min = total_time.total_seconds()/60
-  check_salary = total_min * wage.hourly_wage/60
+  total_hour = total_time.total_seconds()/3600
+  check_salary = total_hour * wage.hourly_wage
 
   context={
       'employee' : employee,
