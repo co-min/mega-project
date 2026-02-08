@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>근무 기록 수정</title>
+</head>
+<body>
+
+<h2>근무 기록 수정</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>직원</th>
+        <th>출근</th>
+        <th>퇴근</th>
+        <th>수정</th>
+    </tr>
+    {% for item in attendance_list %}
+    <tr>
+        <td>{{ item.employee.full_name }}</td>
+        <td>{{ item.check_in }}</td>
+        <td>{{ item.check_out }}</td>
+        <td>
+            <form method="POST" action="{% url 'attendances:update' item.attendance_id %}">
+                {% csrf_token %}
+                <input type="time" name="new_check_in" required>
+                <input type="time" name="new_check_out" required>
+                <button type="submit">저장</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

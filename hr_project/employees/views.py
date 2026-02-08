@@ -4,6 +4,7 @@ from django.db import transaction
 from datetime import date
 from .models import Employee
 from schedules.models import Schedule
+from schedules.constants import WEEKDAYS, WORK_TIME, WORK_TYPE
 from wages.models import Wage
 
 # 직원 목록 페이지
@@ -12,7 +13,7 @@ def employees_list_view(request):
     context = {
         'employees': employees,
     }
-    return render(request, 'employees.html', context)
+    return render(request, 'employee/employees.html', context)
 
 # 직원 생성 및 수정
 def employee_form_view(request, pk=None):
@@ -26,7 +27,7 @@ def employee_form_view(request, pk=None):
         # 직원 데이터 수집 (form)
         full_name = request.POST.get('full_name')
         work_type = request.POST.get('work_type')
-        work_days = request.POST.getlist('work_days')
+        work_day = request.POST.getlist('work_day')
         work_time = request.POST.get('work_time')
         attendance_pin = request.POST.get('attendance_pin')
         color_tag = request.POST.get('color_tag')
@@ -40,6 +41,7 @@ def employee_form_view(request, pk=None):
             with transaction.atomic():
                 # 직원 수정
                 if employee:
+                    Schedule.objects.filter(employee= employee).delete()
                     employee.full_name = full_name
                     employee.attendance_pin = attendance_pin
                     employee.color_tag = color_tag
@@ -53,7 +55,7 @@ def employee_form_view(request, pk=None):
                         color_tag=color_tag,
                     )
                     #기본 월급 생성
-                    if not Wage.objects.filter(employee=employee).exist():
+                    if not Wage.objects.filter(employee=employee).exists():
                         Wage.objects.create(
                             employee= employee,
                             hourly_wage = 10500,
@@ -62,11 +64,11 @@ def employee_form_view(request, pk=None):
                     messages.success(request, f'{full_name} 직원이 등록되었습니다.')
             
                 # 근무 유형 / 근무 타임
-                if work_time and work_days and work_type:
-                    for day in work_days:
-                        Schedule.objects.update_or_create(
+                if work_time and work_day and work_type:
+                    for day in work_day:
+                        Schedule.objects.create(
                             employee = employee,
-                            work_days= int(day),
+                            work_day = int(day),
                             defaults={
                                 'work_type': work_type,
                                 'work_time': work_time,
@@ -78,8 +80,11 @@ def employee_form_view(request, pk=None):
     
     context = {
         'employee' : employee,
+        'WEEKDAYS': WEEKDAYS,
+        'WORK_TYPE' : WORK_TYPE,
+        'WORK_TIME' : WORK_TIME,
     }
-    return render(request, 'employee_form.html', context ) 
+    return render(request, 'employee/employee_form.html', context ) 
 
 # 직원 퇴사 처리
 def employee_delete_view(request, pk):
@@ -88,4 +93,4 @@ def employee_delete_view(request, pk):
     employee.save()
     messages.success(request, f'{employee.full_name} 직원이 퇴사 처리되었습니다.')
     
-    return redirect('employees:employees_list')
+    return redirect('employees:list')

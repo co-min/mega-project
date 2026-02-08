@@ -118,13 +118,16 @@
     <h2>Employee</h2>
     <div class="actions">
       <button class="btn primary" onclick="openSettingsModal()">⚙️ 직원 기본 설정</button>
-      <a href="{% url 'employees:create' %}" class="btn primary">Add mate</a>
+      <a href="{% url 'employees:create' %}" class="btn primary">ADD MATE</a>
+      <a href="{% url 'employees:create' %}" class="btn primary">EDIT MATE</a>
     </div>
   </div>
+
+  <!--직원 정보 보여주는 표-->
   <table class="table">
     <thead>
       <tr>
-        <th>Employee Name</th><th>Shift</th><th>Age</th><th>Wage</th><th>Phone</th><th>Role</th><th>Actions</th>
+        <th>이름</th><th>근무 유형</th><th>근무 요일</th><th>근무 시간</th><th>시급</th>
       </tr>
     </thead>
     <tbody>
@@ -132,24 +135,21 @@
       <tr>
         <td>
           <div class="user">
-            {% if emp.image %}
-            <div class="avatar sm" style="background-image: url('{{ emp.image.url }}'); background-size: cover; background-position: center;"></div>
-            {% else %}
-            <div class="avatar sm"></div>
-            {% endif %}
-            <span>{{ emp.full_name }}</span>
+            <span> {{ emp.full_name }} </span>
             <span class="dot" style="background-color: {{ emp.color_tag }};"></span>
           </div>
         </td>
         <td>
-          {% if '오픈' in emp.shift.name %}오픈{% elif '마감' in emp.shift.name %}마감{% elif '미들' in emp.shift.name %}미들{% endif %} | 
-          {% if '월화수' in emp.shift.name %}월화수{% elif '목금' in emp.shift.name %}목금{% elif '토일' in emp.shift.name %}토일{% endif %} | 
-          {{ emp.shift.time_range }}
+          <span {{ work_type }} </span>
         </td>
-        <td>{{ emp.birth_year }}년생</td>
-        <td>₩ {{ emp.wage|floatformat:0|intcomma }} ({{ emp.get_wage_type_display }})</td>
-        <td class="phone-number">{{ emp.phone }}</td>
-        <td>{{ emp.get_role_display }}</td>
+        <td>
+          <span {{ work_days }} </span>
+        </td>
+        <td>
+          <span {{ work_time }} </span>
+        </td>
+        
+        <td>₩ {{ hourly_wage |floatformat:0|intcomma }} ({{ emp.get_wage_type_display }})</td>
         <td>
           <div style="display: flex; gap: 8px;">
             <a href="{% url 'employees:edit' emp.pk %}" class="btn" style="padding: 4px 12px; font-size: 14px;">수정</a>
@@ -535,19 +535,6 @@
       }
     });
   });
-  
-  // 전화번호 포매팅
-  function formatPhoneNumber(phone) {
-    const numbers = phone.replace(/[^\d]/g, '');
-    if (numbers.length === 11) {
-      return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7)}`;
-    }
-    return phone;
-  }
-  
-  // 페이지 로드 시 모든 전화번호 포매팅
-  document.querySelectorAll('.phone-number').forEach(cell => {
-    cell.textContent = formatPhoneNumber(cell.textContent);
-  });
+
 </script>
 {% endblock %}

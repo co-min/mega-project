@@ -19,7 +19,7 @@ def attendance_view(request):
         'filter_date': filter_date,
         'today': today,
     }
-    return render(request, 'attendance.html', context)
+    return render(request, "attendance/attendance_page.html", context)
 
 """POS에서 출/퇴근 찍었을 때, 처리하는 로직 (PIN 입력 화면)"""
 # 출근 체크인
@@ -45,7 +45,7 @@ def attendance_checkin_view(request):
                 if record.check_in:
                     messages.warning(request, f'{employee.full_name}님 이미 출근 처리되었습니다.')
                 else:
-                    record.heck_in=now_time
+                    record.check_in=now_time
                     record.status = Status.WORKING
                     record.save()
                     messages.success(request, f'{employee.full_name}님 출근 처리되었습니다.')
@@ -56,7 +56,7 @@ def attendance_checkin_view(request):
         except Exception as e:
             messages.error(request, f'오류가 발생했습니다: {str(e)}')
     
-    return render(request, 'attendance_checkin.html')
+    return render(request, 'attendance/attendance_checkin.html')
 
 # 퇴근 체크아웃
 def attendance_checkout_view(request):
@@ -93,7 +93,7 @@ def attendance_checkout_view(request):
         except Exception as e:
             messages.error(request, f'오류가 발생했습니다: {str(e)}')
     
-    return render(request, 'attendance_checkin.html')
+    return render(request, 'attendance/attendance_checkin.html')
 
 
 """출퇴근 수정 로직 (todaywork 페이지)"""
@@ -121,7 +121,7 @@ def day_attendance_view(request):
     context ={
         'attendance_list' : attendance_list,
     }
-    return render(request, 'todaywork.html', context)
+    return render(request, 'attendance/todaywork.html', context)
 
 # 관리자 -> 출퇴근 시간 직접 수정
 def admin_update_attendance_view(request,attendance_id):
