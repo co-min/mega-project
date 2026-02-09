@@ -268,8 +268,8 @@
             {% for value, label in WEEKDAYS %}
               <label style = "margin-right:10px;">
                 <!--required 문제 다시 해결해야함!!-->
-                <input type ="checkbox" name ="work_days" value ={{value}}>
-                  {%if value in work_days %}checked{% endif %}
+                <input type ="checkbox" name ="work_day" value ={{value}}>
+                  {%if value in work_day %}checked{% endif %}
                 {{label}}
               </label>
             {% endfor %}

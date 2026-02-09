@@ -121,7 +121,7 @@ def day_attendance_view(request):
     context ={
         'attendance_list' : attendance_list,
     }
-    return render(request, 'attendance/todaywork.html', context)
+    return render(request, 'attendance/attendance_page.html', context)
 
 # 관리자 -> 출퇴근 시간 직접 수정
 def admin_update_attendance_view(request,attendance_id):
@@ -137,4 +137,4 @@ def admin_update_attendance_view(request,attendance_id):
         messages.success(request, f'{record.employee.full_name}님의 근무 시간이 수정되었습니다.')
         record.save()
 
-    return redirect('attendance:daywork')
+    return redirect('attendance:daywork') + f'?date={record.date}'

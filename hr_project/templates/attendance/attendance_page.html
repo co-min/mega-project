@@ -1,39 +1,77 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>출퇴근 현황</title>
-    <style>
-        body { font-family: Arial; margin: 40px; }
-        h1 { margin-bottom: 20px; }
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background: #f2f2f2; }
-        .working { color: green; font-weight: bold; }
-        .finished { color: blue; font-weight: bold; }
-        .absent { color: red; font-weight: bold; }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Attendance · Mega Coffee HR{% endblock %}
+{% block nav_attendance_active %}active{% endblock %}
 
-<h1>📅 {{ filter_date }} 출퇴근 현황</h1>
+{% block content %}
+<div class="page-header">
+  <h1>일 별 근무 기록</h1>
+  <div class="actions">
+    <input type="date" value="{{ filter_date }}" onchange="window.location.href='?date='+this.value" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+    <a href="{% url 'attendances:checkin' %}" class="btn primary" target="_blank">출퇴근 POS</a>
+  </div>
+</div>
 
-<table>
-    <tr>
-        <th>이름</th>
-        <th>출근 시간</th>
-        <th>퇴근 시간</th>
-        <th>상태</th>
-    </tr>
-    {% for item in records %}
-    <tr>
-        <td>{{ item.employee.full_name }}</td>
-        <td>{{ item.check_in|default:"-" }}</td>
-        <td>{{ item.check_out|default:"-" }}</td>
-        <td class="{{ item.status|lower }}">{{ item.status }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="card">
+  <h2>{{ filter_date }}</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width: 25%;">직원 이름</th>
+        <th style="width: 25%;">출근 시각</th>
+        <th style="width: 25%;">퇴근 시각</th>
+        <th style="width: 25%;">근무 현황</th>
+      </tr>
+    </thead>
 
-</body>
-</html>
+    <tbody>
+      {% for item in records %}
+      <tr>
+        <td>
+          <div class="user">
+            <span>{{ item.employee.full_name }}</span>
+            <span class="dot" style="background-color: {{ item.employee.color_tag }};"></span>
+            {% if item.is_substitute %}
+              <span style="font-size: 12px; margin-left: 5px;">[대타]</span>
+            {% endif %}
+          </div>
+        </td>
+
+        <td>
+          {% if item.check_in %}
+            <span class="check_in">{{ item.check_in|time:"H:i" }}</span>
+          {% else %}
+            <span>-</span>
+          {% endif %}
+        </td>
+
+        <td>
+          {% if item.check_out %}
+            <span class="check_out">{{ item.check_out|time:"H:i" }}</span>
+          {% else %}
+            <span>-</span>
+          {% endif %}
+        </td>
+
+        <td>
+          {% if item.status == 'working' %}
+            <span class="working">근무 중</span>
+          {% elif item.status == 'finished' %}
+            <span class="finished">퇴근</span>
+          {% elif item.status == 'absent' %}
+            <span class="absent">결근</span>
+          {% else %}
+            <span class="planned">근무 예정</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 2rem; color: #888;">
+          해당 날짜에 근무 예정자나 기록이 없습니다.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
