@@ -37,6 +37,11 @@
 					<span class="icon">👥</span>
 					<span>Employees</span>
 				</a>
+				<a href="{% url 'wages:monthly' %}" class="menu-item {% block nav_wages_active %}{% endblock %}">
+					<span class="icon">💸</span>
+					<span>Wages</span>
+				</a>
+
 			</nav>
 			<div class="menu-secondary">
 			<a href="{% url 'profile' %}" class="menu-item {% block nav_profile_active %}{% endblock %}"><span class="icon">👤</span><span>Profile</span></a>

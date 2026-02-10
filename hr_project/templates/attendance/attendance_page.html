@@ -16,10 +16,12 @@
   <table class="table">
     <thead>
       <tr>
-        <th style="width: 25%;">직원 이름</th>
-        <th style="width: 25%;">출근 시각</th>
-        <th style="width: 25%;">퇴근 시각</th>
-        <th style="width: 25%;">근무 현황</th>
+        <th style="width: 20%; ">직원 이름</th>
+        <th style="width: 17%;">출근 시각</th>
+        <th style="width: 17%;">퇴근 시각</th>
+        <th style="width: 16%;">근무 현황</th>
+        <th style="width: 15%;">대타 여부</th>
+        <th style="width: 15%;">관리</th>
       </tr>
     </thead>
 
@@ -27,12 +29,9 @@
       {% for item in records %}
       <tr>
         <td>
-          <div class="user">
+          <div>
             <span>{{ item.employee.full_name }}</span>
             <span class="dot" style="background-color: {{ item.employee.color_tag }};"></span>
-            {% if item.is_substitute %}
-              <span style="font-size: 12px; margin-left: 5px;">[대타]</span>
-            {% endif %}
           </div>
         </td>
 
@@ -63,6 +62,21 @@
             <span class="planned">근무 예정</span>
           {% endif %}
         </td>
+
+        <td>
+          {% if item.is_substitute %}
+            <span>대타</span>
+          {% else %}
+            <span>-</span>
+          {% endif %}
+        </td>
+
+        <td>
+          <div style="display: flex; gap: 8px;">
+            <a href="{% url 'attendances:daywork'%}" class="btn" style="padding: 4px 12px; font-size: 14px;">기록 수정</a>
+              {% csrf_token %}
+          </div>
+        </td>
       </tr>
       {% empty %}
       <tr>
@@ -74,4 +88,9 @@
     </tbody>
   </table>
 </div>
+
+<div>
+
+
+
 {% endblock %}

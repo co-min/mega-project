@@ -267,7 +267,6 @@
           <div class="checkbox-group">
             {% for value, label in WEEKDAYS %}
               <label style = "margin-right:10px;">
-                <!--required 문제 다시 해결해야함!!-->
                 <input type ="checkbox" name ="work_day" value ={{value}}>
                   {%if value in work_day %}checked{% endif %}
                 {{label}}
@@ -288,6 +287,20 @@
               </option>
               {% endfor %}
             </select>
+      </div>
+      <div class="form-field span-2">
+        <label>
+          <span id = "isBreakTimeLable"> 휴게 시간 *</span></label>
+          <div class="checkbox-group">
+            <label style = "margin-right:10px;">
+              <input type ="checkbox" name ="is_breaktime">
+                {%if employee.is_breaktime %}{% endif %}
+                <span> 없음 </span><br>
+                <span class="color-hint"> 해당 란을 체크 하지 않을 경우, 법적으로 4시간 이상 근무 시 30분, 8시간 이상 근무 시 1시간의 휴게시간이 자동 부여됩니다.</span>
+
+            </label>
+        </label>
+      </div>
       </div>
     </div>
   </div>
@@ -333,7 +346,7 @@
     </div>
   </div>
   <div class="form-actions">
-    <a href="{% url 'employees:create' %}" class="btn">‹ 이전</a>
+    <a href="{% url 'employees:list' %}" class="btn">‹ 이전</a>
     <button class="btn primary" type="submit">{% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>
   </div>
 </form>

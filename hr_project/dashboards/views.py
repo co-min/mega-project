@@ -33,4 +33,4 @@ def dashboard_view(request):
         'next_month': next_month,
     }
 
-    return render(request, 'dashboard.html', context)
+    return render(request, 'dashboard/dashboard.html', context)

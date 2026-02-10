@@ -54,7 +54,6 @@ def attendance_checkin_and_out_view(request):
                 messages.success(request, f'{employee.full_name}님 퇴근 처리되었습니다.')
             else:
                 messages.error(request, f'{employee.full_name}님 이미 퇴근 처리 되었습니다.')
-
         
         except Employee.DoesNotExist:
             messages.error(request, 'PIN이 올바르지 않습니다.')
@@ -103,5 +102,10 @@ def admin_update_attendance_view(request,attendance_id):
 
         messages.success(request, f'{record.employee.full_name}님의 근무 시간이 수정되었습니다.')
         record.save()
+    
+    context ={
+        'new_check_in' : new_check_in,
+        'new_check_out' : new_check_out,
+    }
 
-    return redirect('attendance:daywork') + f'?date={record.date}'
+    return render(request, 'attendance/attendance_page.html', context)

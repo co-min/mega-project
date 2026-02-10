@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Wages · Mega Coffee HR{% endblock %}
+{% block nav_wages_active %}active{% endblock %}
+{% load humanize %}
+
+{% block content %}
+<div class="page-header">
+  <h1>월급</h1>
+</div>
+<div class="card">
+  <h2>{{ filter_date }}</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width: 20%; ">직원 이름</th>
+        <th style="width: 20%;">시급</th>
+        <th style="width: 20%;">시급 변경</th>
+        <th style="width: 20%;">총 근무 시간 (단위: HOUR)<th>
+        <th style="width: 20%;">월급</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for item in salary_list %}
+      <tr>
+        <td>
+          {{ item.employee.full_name }}
+          <span class="dot" style="background-color: {{ item.employee.color_tag }};"></span>
+        </td>
+        <td>
+          ₩ {{ item.hourly_wage|intcomma }}
+        </td>
+       
+        <td style="white-space: nowrap;">
+          <form method="post" action="{% url 'wages:hourly_wage_change' item.employee.id %}?date={{ filter_date }}">
+            {% csrf_token %}
+            <select name="new_hourly_wage" onchange="this.form.submit()" style="padding:4px 8px; border-radius:6px;">
+              {% for w in wage_choices %}
+                <option value="{{ w }}" {% if w == item.hourly_wage %}selected{% endif %}>
+                  {{ w|intcomma }}원
+                </option>
+              {% endfor %}
+            </select>
+          </form>
+        </td>
+        <td>
+          {{ item.total_hour }}
+        </td>
+        <td style="white-space: nowrap;">
+          ₩ {{ item.monthly_salary|floatformat:0|intcomma }}
+        </td>
+        
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5">해당 월에 근무 기록이 없습니다.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

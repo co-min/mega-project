@@ -11,6 +11,7 @@ class Employee(models.Model):
     attendance_pin = models.CharField(max_length=4, validators=[pin_validator], unique=True)
     color_tag = models.CharField(max_length=7, validators=[color_validator], default='#22c55e')
     is_active = models.BooleanField(default=True)
+    is_breaktime = models.BooleanField(default=True)
     created_at = models.DateField(null=True, blank=True)
     resign_at = models.DateField(null=True, blank=True)
 
