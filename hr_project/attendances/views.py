@@ -22,77 +22,44 @@ def attendance_view(request):
     return render(request, "attendance/attendance_page.html", context)
 
 """POS에서 출/퇴근 찍었을 때, 처리하는 로직 (PIN 입력 화면)"""
-# 출근 체크인
-def attendance_checkin_view(request):
+# 출퇴근 기록
+def attendance_checkin_and_out_view(request):
     if request.method == 'POST':
         pin = request.POST.get('pin')
         today = date.today()
         now_time = datetime.now().time()
         try:
-            employee = Employee.objects.get(attendance_pin=pin, is_active=True)
-            # 오늘 날짜의 기록이 있는지 확인
-            record, created = AttendanceRecord.objects.get_or_create(
-                employee=employee,
-                date=today,
-                defaults={
-                    'check_in': now_time,
-                    'status': Status.WORKING
-                }
-            )
-            
-            if not created:
-                # 이미 체크인한 경우
-                if record.check_in:
-                    messages.warning(request, f'{employee.full_name}님 이미 출근 처리되었습니다.')
-                else:
-                    record.check_in=now_time
-                    record.status = Status.WORKING
-                    record.save()
-                    messages.success(request, f'{employee.full_name}님 출근 처리되었습니다.')
-            else:
-                messages.success(request, f'{employee.full_name}님 출근 처리되었습니다.')
-        except Employee.DoesNotExist:
-            messages.error(request, 'PIN이 올바르지 않습니다.')
-        except Exception as e:
-            messages.error(request, f'오류가 발생했습니다: {str(e)}')
-    
-    return render(request, 'attendance/attendance_checkin.html')
-
-# 퇴근 체크아웃
-def attendance_checkout_view(request):
-    if request.method == 'POST':
-        employee_id = request.POST.get('employee_id')
-        pin = request.POST.get('pin')
-        today = date.today()
-        now_time = datetime.now().time()
-        
-        try:
-            employee = Employee.objects.filter(
-                pk=employee_id,
+            employee = Employee.objects.get(
                 attendance_pin=pin, 
-                is_active = True
-            ).first()
-
+                is_active=True
+            )
             record = AttendanceRecord.objects.filter(
                 employee=employee,
-                date=today
+                date=today,
             ).first()
-        
-            if record.check_out:
-                messages.warning(request, f'{employee.full_name}님 이미 퇴근 처리되었습니다.')
-            else:
+            # 출근 처리
+            if not record:
+                AttendanceRecord.objects.create(
+                    employee=employee,
+                    date = today,
+                    check_in=now_time,
+                    status = Status.WORKING,
+                )
+                messages.success(request, f'{employee.full_name}님 출근 처리되었습니다.')
+            # 퇴근 처리
+            elif record.check_in and not record.check_out:
                 record.check_out = now_time
                 record.status = Status.FINISHED
                 record.save()
                 messages.success(request, f'{employee.full_name}님 퇴근 처리되었습니다.')
+            else:
+                messages.error(request, f'{employee.full_name}님 이미 퇴근 처리 되었습니다.')
+
         
         except Employee.DoesNotExist:
-            messages.error(request, '직원 정보 또는 PIN이 올바르지 않습니다.')
-        except AttendanceRecord.DoesNotExist:
-            messages.error(request, '출근 기록이 없습니다.')
+            messages.error(request, 'PIN이 올바르지 않습니다.')
         except Exception as e:
             messages.error(request, f'오류가 발생했습니다: {str(e)}')
-    
     return render(request, 'attendance/attendance_checkin.html')
 
 

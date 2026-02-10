@@ -7,7 +7,7 @@
   <h1>일 별 근무 기록</h1>
   <div class="actions">
     <input type="date" value="{{ filter_date }}" onchange="window.location.href='?date='+this.value" style="padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-    <a href="{% url 'attendances:checkin' %}" class="btn primary" target="_blank">출퇴근 POS</a>
+    <a href="{% url 'attendances:checkin_and_out' %}" class="btn primary" target="_blank">출퇴근 POS</a>
   </div>
 </div>
 
