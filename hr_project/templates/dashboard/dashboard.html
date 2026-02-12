@@ -1,387 +1,295 @@
 {% extends 'base.html' %}
+{% block topbar_search %}{% endblock %}
+{% load static %}
 {% load humanize %}
-{% load dashboard_extras %}
-{% block title %}Dashboard · Mega Coffee HR{% endblock %}
-{% block nav_dashboard_active %}active{% endblock %}
 
 {% block content %}
 <style>
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    animation: fadeIn 0.3s;
-  }
-  .modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-content {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 700px;
-    max-height: 80vh;
-    overflow-y: auto;
-    animation: slideIn 0.3s;
-  }
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    border-bottom: 2px solid #e5e7eb;
-    padding-bottom: 1rem;
-  }
-  .modal-header h2 {
-    margin: 0;
-  }
-  .close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #666;
-  }
-  .employee-event-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    background: #f9fafb;
-  }
-  .employee-event-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex: 1;
-  }
-  .employee-event-select {
-    padding: 6px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    background: white;
-    min-width: 120px;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+    /* ------------------------------------------------
+       헤더 스타일
+    ------------------------------------------------ */
+    .cal-header-standalone {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px; /* 캘린더와의 간격 */
+        padding: 0 4px;      /* 양옆 살짝 여유 */
+    }
+
+    /* 네비게이션 버튼 */
+    .btn-nav {
+        width: 36px; height: 36px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        background: white;
+        color: #374151;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* 입체감 살짝 추가 */
+    }
+    .btn-nav:hover { background: #f9fafb; border-color: #9ca3af; }
+
+    .current-month-text {
+        font-size: 26px; /* 밖으로 나왔으니 조금 더 키움 */
+        font-weight: 800;
+        color: #111827;
+        padding: 0 16px;
+        font-family: 'Pretendard', sans-serif;
+    }
+
+    /* 오른쪽 컨트롤 */
+    .cal-controls { display: flex; align-items: center; gap: 12px; }
+
+    .quick-wage-zone {
+        display: flex; align-items: center; gap: 8px;
+        background: white; /* 배경 흰색으로 명확하게 */
+        padding: 8px 16px;
+        border-radius: 8px; 
+        border: 1px solid #d1d5db;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .wage-display { font-weight: 700; color: #2563eb; font-size: 15px; }
+    .mc-select-slim {
+        border: none; outline: none; font-size: 13px; font-weight: 600;
+        cursor: pointer; background: transparent; color: #4b5563;
+    }
+
+    /* ------------------------------------------------
+       2. 캘린더 컨테이너 (그리드만 포함)
+    ------------------------------------------------ */
+    .calendar-container {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 0; /* 패딩 제거 (그리드가 꽉 차게) */
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        border: 1px solid #d1d5db;
+        overflow: hidden; /* 모서리 둥글게 유지 */
+    }
+
+    /* ------------------------------------------------
+       3. 그리드 레이아웃
+    ------------------------------------------------ */
+    .cal-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        border-bottom: 1px solid #d1d5db;
+        background: #f9fafb; /* 요일 헤더 배경색 추가 (구분감) */
+        padding: 12px 0;
+        margin-bottom: 0;
+    }
+    
+    .weekday { 
+        font-size: 14px; font-weight: 700; color: #4b5563; 
+        font-family: 'Pretendard', sans-serif;
+    }
+
+    .cal-grid {
+        display: flex; flex-direction: column;
+        background-color: white;
+    }
+    .cal-row { display: grid; grid-template-columns: repeat(7, 1fr); }
+    
+    .cal-cell {
+        min-height: 140px; 
+        height: auto;
+        padding: 8px;
+        border-right: 1px solid #e5e7eb; /* 선 색상 약간 연하게 조정 */
+        border-bottom: 1px solid #e5e7eb;
+        display: flex; flex-direction: column; gap: 4px;
+        position: relative;
+    }
+    .cal-cell:nth-child(7n) { border-right: none; } /* 마지막 칸 오른쪽 선 제거 */
+
+    .cal-cell.empty { background: #fffbeb; }
+
+    .day-num {
+        font-size: 15px; font-weight: 600; color: #1f2937;
+        margin-bottom: 6px; padding-left: 2px;
+        font-family: 'Pretendard', sans-serif;
+    }
+    .cal-cell:nth-child(7n+1) .day-num { color: #dc2626; }
+    .cal-cell:nth-child(7n) .day-num { color: #2563eb; }
+
+    /* ------------------------------------------------
+       4. 스케줄 카드 & 버튼
+    ------------------------------------------------ */
+    .sch-card {
+        padding: 5px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        display: flex; flex-direction: column;
+        position: relative;
+        line-height: 1.3;
+        border: 1px solid rgba(0,0,0,0.1);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        margin-bottom: 2px;
+        background: white; /* 기본 배경 */
+    }
+    .sch-hidden { display: none; }
+
+    .sch-header { display: flex; align-items: center; font-weight: 600; }
+    .emp-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+    .sch-time { font-size: 11px; opacity: 0.9; margin-left: 12px; font-weight: 500; }
+
+    /* 상태별 스타일 */
+    .status-planned { background: #f9fafb; color: #6b7280; border: 1px dashed #d1d5db; }
+    .status-working { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .status-finished { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+    .status-absent { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .is-substitute { background: #fffbeb !important; border: 1px solid #fcd34d !important; color: #92400e !important; }
+    .badge-sub { position: absolute; top: -4px; right: -4px; background: #f59e0b; color: white; font-size: 9px; padding: 1px 4px; border-radius: 99px; font-weight: 700; }
+
+    .btn-more {
+        margin-top: auto;
+        background: white;
+        border: 1px solid #e5e7eb;
+        width: 100%;
+        padding: 5px 0;
+        border-radius: 4px;
+        color: #6b7280;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-more:hover { background: #f9fafb; color: #111827; border-color: #d1d5db; }
 </style>
-<div class="page-header">
-  <h1>{{ month_name }} {{ year }}</h1>
-  <div class="actions">
-    <a class="btn" href="/?year={{ prev_year }}&month={{ prev_month }}">‹ Prev</a>
-    <a class="btn" href="/?year={{ next_year }}&month={{ next_month }}">Next ›</a>
-    <button class="btn">Month ▾</button>
-  </div>
-</div>
 
-<!-- Full-width calendar -->
-<div class="card calendar-card">
-  <div class="calendar-toolbar">
-    <div class="tools">
-      <button class="icon-btn">🔍</button>
-      <button class="btn primary" onclick="openEventModal()">➕ Add event</button>
+<div class="cal-header-standalone">
+    <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn-nav" onclick="location.href='?year={{ prev_year }}&month={{ prev_month }}'">❮</button>
+        <div class="current-month-text">{{ year }}년 {{ month }}월</div>
+        <button class="btn-nav" onclick="location.href='?year={{ next_year }}&month={{ next_month }}'">❯</button>
     </div>
-  </div>
-  <div class="calendar-grid full">
-    <!-- Weekday Headers -->
-    {% for wd in weekdays %}
-    <div class="calendar-cell header"><div class="date">{{ wd }}</div></div>
-    {% endfor %}
 
-    <!-- Days of Month -->
-    {% for week in weeks %}
-      {% for day_obj in week %}
-        {% if day_obj.day == 0 %}
-        <div class="calendar-cell empty"></div>
-        {% else %}
-          <div class="calendar-cell{% if year == today.year and month == today.month and day_obj.day == today.day %} today{% elif year == today.year and month == today.month and day_obj.day < today.day %} past{% elif year == today.year and month == today.month and day_obj.day > today.day %} future{% endif %}">
-            <div class="date">{{ day_obj.day }}</div>
-            <ul class="events">
-              {% for evt in day_obj.events %}
-              <li class="event-item color-{{ evt.color }}">
-                <span class="dot" style="background-color: {{ evt.employee_color }};"></span>
-                <span class="name">{{ evt.name }}</span>
-                <span class="time">{{ evt.start }}-{{ evt.end }}</span>
-              </li>
-              {% endfor %}
-              {% for emp in day_obj.employees %}
-              <li class="event-item" style="opacity: {% if emp.checked_in %}1{% else %}0.4{% endif %};">
-                <span class="dot" style="background-color: {{ emp.color_tag }};"></span>
-                <span class="name">{{ emp.name }}</span>
-                <span class="time">{{ emp.time_range }}</span>
-              </li>
-              {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
-      {% endfor %}
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Employee status below calendar -->
-<div class="grid-2 mt-20">
-  <div class="card">
-    <h2>Employee Status</h2>
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Employee-Name</th>
-          <th>Shift</th>
-          <th>Age</th>
-          <th>Wage</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in employees_with_status %}
-        <tr>
-          <td>
-            <div class="user">
-              {% if item.employee.image %}
-              <div class="avatar sm" style="background-image: url('{{ item.employee.image.url }}'); background-size: cover; background-position: center;"></div>
-              {% else %}
-              <div class="avatar sm"></div>
-              {% endif %}
-              <span>{{ item.employee.full_name }}</span>
-              <span class="dot" style="background-color: {{ item.employee.color_tag }};"></span>
-            </div>
-          </td>
-          <td style="white-space: nowrap;">
-            {% if '오픈' in item.employee.shift.name %}오픈{% elif '마감' in item.employee.shift.name %}마감{% elif '미들' in item.employee.shift.name %}미들{% endif %} | 
-            {% if '월화수' in item.employee.shift.name %}월화수{% elif '목금' in item.employee.shift.name %}목금{% elif '토일' in item.employee.shift.name %}토일{% endif %} | 
-            {{ item.employee.shift.time_range }}
-          </td>
-          <td>{{ item.age }}</td>
-          <td style="white-space: nowrap;">₩ {{ item.employee.wage|floatformat:0|intcomma }}</td>
-          <td><span class="badge {{ item.status_badge }}">{{ item.status_display }}</span></td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5" style="text-align: center; color: #9ca3af;">등록된 직원이 없습니다.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>Announcement <span class="chip">{{ today|date:"n월 j일, D" }}</span></h2>
-    <ul class="list">
-      {% for event in upcoming_events %}
-      <li>
-        <span class="bar" style="background-color: {% if event.employee %}{{ event.employee.color_tag }}{% else %}#22c55e{% endif %};"></span>
-        <div style="flex: 1; min-width: 0;">
-          <div class="title" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            {% if event.employee %}{{ event.employee.full_name }}{% endif %}
-            <span style="color: #6b7280; font-size: 14px;"> | {{ event.start|time:"H:i" }}-{{ event.end|time:"H:i" }}</span>
-          </div>
+    <div class="cal-controls">
+        <div class="quick-wage-zone">
+            <select id="liveEmpSelect" onchange="calcLive()" class="mc-select-slim">
+                <option value="">급여 확인 (직원 선택)</option>
+                {% for emp in employees %}
+                <option value="{{ emp.id }}" data-wage="{{ emp.hourly_wage|default:9860 }}">
+                    {{ emp.full_name }}
+                </option>
+                {% endfor %}
+            </select>
+            <span id="liveResult" class="wage-display"></span>
         </div>
-        <span class="badge {% if event.color == 'purple' %}purple{% elif event.color == 'green' %}green{% elif event.color == 'blue' %}blue{% elif event.color == 'yellow' %}orange{% else %}gray{% endif %}" style="flex-shrink: 0;">{% if event.color == 'yellow' %}조퇴{% elif event.color == 'blue' %}휴가{% elif event.color == 'purple' %}병가{% elif event.color == 'green' %}대타{% else %}일정{% endif %}</span>
 
-      </li>
-      {% empty %}
-      <li style="padding: 2rem; text-align: center; color: #9ca3af; word-break: keep-all; white-space: nowrap;">
-        예정된 일정이 없습니다.
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
-
-<!-- Add Event Modal -->
-<div id="eventModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>📅 오늘의 일정 추가</h2>
-      <button class="close-btn" onclick="closeEventModal()">&times;</button>
+        <input type="month" value="{{ year }}-{{ month|stringformat:'02d' }}" onchange="moveDate(this.value)" 
+               style="padding:8px 12px; border-radius:8px; border:1px solid #d1d5db; font-size:14px; cursor:pointer; outline:none; color: #374151; background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
     </div>
-    <form method="post" action="{% url 'dashboard' %}">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="add_event">
-      
-      <div style="margin-bottom: 1.5rem;">
-        <h3 style="margin-bottom: 1rem; font-size: 16px; font-weight: 600; color: #111827;">✅ 오늘 근무 직원 ({{ today|date:"Y년 n월 j일" }})</h3>
-        
-        {% for emp in today_employees %}
-        <div class="employee-event-item">
-          <div class="employee-event-info">
-            <span class="dot" style="background-color: {{ emp.color_tag }}; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
-            <div>
-              <div style="font-weight: 600;">{{ emp.full_name }}</div>
-              <div style="font-size: 12px; color: #6b7280;">
-                {% if '오픈' in emp.shift.name %}오픈{% elif '마감' in emp.shift.name %}마감{% elif '미들' in emp.shift.name %}미들{% endif %} | 
-                {% if '월화수' in emp.shift.name %}월화수{% elif '목금' in emp.shift.name %}목금{% elif '토일' in emp.shift.name %}토일{% endif %} | 
-                {{ emp.shift.time_range }}
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <select name="event_{{ emp.id }}" class="employee-event-select" onchange="toggleEarlyTime({{ emp.id }})" id="event_select_{{ emp.id }}">
-              {% if emp.id in today_events_map %}
-                {% with event=today_events_map|get_item:emp.id %}
-                  <option value=""{% if not event %} selected{% endif %}>정상 근무</option>
-                  <option value="vacation"{% if event.name and '휴가' in event.name %} selected{% endif %}>휴가</option>
-                  <option value="sick_leave"{% if event.name and '병가' in event.name %} selected{% endif %}>병가</option>
-                  <option value="early_leave"{% if event.name and '조퇴' in event.name %} selected{% endif %}>조퇴</option>
-                {% endwith %}
-              {% else %}
-                <option value="" selected>정상 근무</option>
-                <option value="vacation">휴가</option>
-                <option value="sick_leave">병가</option>
-                <option value="early_leave">조퇴</option>
-              {% endif %}
-            </select>
-            <input type="time" name="early_time_{{ emp.id }}" id="early_time_{{ emp.id }}" 
-                   style="padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; display: none; font-size: 14px;"
-                   {% if emp.id in today_events_map %}{% with event=today_events_map|get_item:emp.id %}{% if event.name and '조퇴' in event.name %}value="{{ event.end|time:'H:i' }}"{% endif %}{% endwith %}{% endif %}>
-          </div>
+</div>
+
+<div class="calendar-container">
+    <div class="cal-weekdays">
+        <div class="weekday" style="color:#dc2626">SUN</div>
+        <div class="weekday">MON</div>
+        <div class="weekday">TUE</div>
+        <div class="weekday">WED</div>
+        <div class="weekday">THU</div>
+        <div class="weekday">FRI</div>
+        <div class="weekday" style="color:#2563eb">SAT</div>
+    </div>
+
+    <div class="cal-grid">
+        {% for week in calendar_matrix %}
+        <div class="cal-row">
+            {% for date_info in week %}
+                {% if date_info.day == 0 %}
+                    <div class="cal-cell empty"></div>
+                {% else %}
+                    <div class="cal-cell">
+                        <span class="day-num">{{ date_info.day }}</span>
+                        
+                        {% for item in date_info.schedules %}
+                            <div class="sch-card 
+                                {% if forloop.counter > 2 %}sch-hidden{% endif %}
+                                {% if item.is_substitute %}is-substitute{% endif %}
+                                {% if item.status == 'planned' %}status-planned
+                                {% elif item.status == 'working' %}status-working
+                                {% elif item.status == 'finished' %}status-finished
+                                {% elif item.status == 'absent' %}status-absent
+                                {% endif %}
+                            " 
+                            data-emp-id="{{ item.employee_id }}" 
+                            data-hours="{{ item.work_hours|default:0 }}">
+                                
+                                {% if item.is_substitute %}
+                                    <span class="badge-sub">대타</span>
+                                {% endif %}
+
+                                <div class="sch-header">
+                                    <span class="emp-dot" style="background-color: {{ item.color|default:'#9ca3af' }};"></span>
+                                    <span>{{ item.name }}</span>
+                                </div>
+                                {% if item.time %}
+                                    <span class="sch-time">{{ item.time }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        {% if date_info.schedules|length > 2 %}
+                            <button class="btn-more" onclick="toggleSchedule(this)">
+                                + {{ date_info.schedules|length|add:"-2" }}명 더보기
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
         </div>
-        {% empty %}
-        <p style="text-align: center; color: #9ca3af; padding: 2rem;">오늘 근무 예정인 직원이 없습니다.</p>
         {% endfor %}
-      </div>
-      
-      <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 2px solid #e5e7eb;">
-        <h3 style="margin-bottom: 1rem; font-size: 16px; font-weight: 600; color: #374151;">💼 다른 요일 근무자</h3>
-        
-        {% for emp in other_employees %}
-        <div class="employee-event-item" style="background: #fefefe;">
-          <div class="employee-event-info">
-            <span class="dot" style="background-color: {{ emp.color_tag }}; width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
-            <div>
-              <div style="font-weight: 600;">{{ emp.full_name }}</div>
-              <div style="font-size: 12px; color: #6b7280;">
-                {% if '오픈' in emp.shift.name %}오픈{% elif '마감' in emp.shift.name %}마감{% elif '미들' in emp.shift.name %}미들{% endif %} | 
-                {% if '월화수' in emp.shift.name %}월화수{% elif '목금' in emp.shift.name %}목금{% elif '토일' in emp.shift.name %}토일{% endif %} | 
-                {{ emp.shift.time_range }}
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <select name="event_{{ emp.id }}" class="employee-event-select" onchange="toggleSubstituteTime({{ emp.id }})" id="event_select_other_{{ emp.id }}">
-              {% if emp.id in today_events_map %}
-                {% with event=today_events_map|get_item:emp.id %}
-                  <option value=""{% if not event %} selected{% endif %}>-</option>
-                  <option value="substitute"{% if event.name and '대타' in event.name %} selected{% endif %}>대타 투입</option>
-                  <option value="vacation"{% if event.name and '휴가' in event.name %} selected{% endif %}>휴가</option>
-                  <option value="sick_leave"{% if event.name and '병가' in event.name %} selected{% endif %}>병가</option>
-                {% endwith %}
-              {% else %}
-                <option value="" selected>-</option>
-                <option value="substitute">대타 투입</option>
-                <option value="vacation">휴가</option>
-                <option value="sick_leave">병가</option>
-              {% endif %}
-            </select>
-            <input type="time" name="sub_start_{{ emp.id }}" id="sub_start_{{ emp.id }}" 
-                   placeholder="시작" 
-                   style="padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; display: none; font-size: 14px; width: 90px;"
-                   {% if emp.id in today_events_map %}{% with event=today_events_map|get_item:emp.id %}{% if event.name and '대타' in event.name %}value="{{ event.start|time:'H:i' }}"{% endif %}{% endwith %}{% endif %}>
-            <input type="time" name="sub_end_{{ emp.id }}" id="sub_end_{{ emp.id }}" 
-                   placeholder="종료" 
-                   style="padding: 6px 8px; border: 1px solid #d1d5db; border-radius: 6px; display: none; font-size: 14px; width: 90px;"
-                   {% if emp.id in today_events_map %}{% with event=today_events_map|get_item:emp.id %}{% if event.name and '대타' in event.name %}value="{{ event.end|time:'H:i' }}"{% endif %}{% endwith %}{% endif %}>
-          </div>
-        </div>
-        {% empty %}
-        <p style="text-align: center; color: #9ca3af; padding: 1rem;">다른 근무조 직원이 없습니다.</p>
-        {% endfor %}
-      </div>
-      
-      <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-        <button type="button" class="btn" onclick="closeEventModal()">취소</button>
-        <button type="submit" class="btn primary">저장</button>
-      </div>
-    </form>
-  </div>
+    </div>
 </div>
 
 <script>
-  function openEventModal() {
-    document.getElementById('eventModal').classList.add('active');
-  }
-  
-  function closeEventModal() {
-    document.getElementById('eventModal').classList.remove('active');
-  }
-  
-  function toggleEarlyTime(empId) {
-    const select = document.getElementById('event_select_' + empId);
-    const timeInput = document.getElementById('early_time_' + empId);
-    
-    if (select.value === 'early_leave') {
-      timeInput.style.display = 'block';
-      timeInput.required = true;
-    } else {
-      timeInput.style.display = 'none';
-      timeInput.required = false;
+    function moveDate(value) {
+        if (!value) return;
+        const [y, m] = value.split('-');
+        window.location.href = `?year=${y}&month=${parseInt(m)}`;
     }
-  }
-  
-  function toggleSubstituteTime(empId) {
-    const select = document.getElementById('event_select_other_' + empId);
-    const startInput = document.getElementById('sub_start_' + empId);
-    const endInput = document.getElementById('sub_end_' + empId);
-    
-    if (select.value === 'substitute') {
-      startInput.style.display = 'block';
-      endInput.style.display = 'block';
-      startInput.required = true;
-      endInput.required = true;
-    } else {
-      startInput.style.display = 'none';
-      endInput.style.display = 'none';
-      startInput.required = false;
-      endInput.required = false;
+
+    function toggleSchedule(btn) {
+        const cell = btn.closest('.cal-cell');
+        const hiddenItems = cell.querySelectorAll('.sch-card.sch-hidden');
+        
+        if (hiddenItems.length > 0) {
+            hiddenItems.forEach(item => {
+                item.classList.remove('sch-hidden');
+                item.classList.add('sch-expanded');
+            });
+            btn.innerText = "접기 ▲";
+        } else {
+            const expandedItems = cell.querySelectorAll('.sch-card.sch-expanded');
+            expandedItems.forEach(item => {
+                item.classList.remove('sch-expanded');
+                item.classList.add('sch-hidden');
+            });
+            const totalCards = cell.querySelectorAll('.sch-card').length;
+            const hiddenCount = totalCards - 2;
+            btn.innerText = `+ ${hiddenCount}명 더보기`;
+        }
     }
-  }
-  
-  // 페이지 로드 시 조퇴 선택된 항목에 대해 시간 입력 필드 표시
-  document.addEventListener('DOMContentLoaded', function() {
-    const selects = document.querySelectorAll('[id^="event_select_"]');
-    selects.forEach(function(select) {
-      const empId = select.id.replace('event_select_', '');
-      toggleEarlyTime(empId);
-    });
-    
-    // 대타 시간 입력 필드 초기화
-    const otherSelects = document.querySelectorAll('[id^="event_select_other_"]');
-    otherSelects.forEach(function(select) {
-      const empId = select.id.replace('event_select_other_', '');
-      toggleSubstituteTime(empId);
-    });
-  });
-  
-  // ESC 키로 모달 닫기
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closeEventModal();
+
+    function calcLive() {
+        const sel = document.getElementById('liveEmpSelect');
+        const empId = sel.value;
+        const wage = parseFloat(sel.options[sel.selectedIndex].getAttribute('data-wage'));
+        const res = document.getElementById('liveResult');
+
+        if (!empId) { res.innerText = ""; return; }
+
+        let hours = 0;
+        document.querySelectorAll(`.sch-card[data-emp-id="${empId}"]`).forEach(card => {
+            if (!card.classList.contains('status-absent')) {
+                hours += parseFloat(card.getAttribute('data-hours') || 0);
+            }
+        });
+
+        const totalPay = Math.floor(hours * wage);
+        res.innerText = `₩${totalPay.toLocaleString()}`;
     }
-  });
-  
-  // 모달 배경 클릭 시 닫기
-  document.getElementById('eventModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-      closeEventModal();
-    }
-  });
 </script>
 {% endblock %}

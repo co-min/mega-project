@@ -105,6 +105,7 @@ def daily_calendar_display_date(target_date):
 
         display_list.append({
             'name': emp.full_name,
+            'color': emp.color_tag,
             'time': time_text,
             'status': status,
             'css_class': css_class,

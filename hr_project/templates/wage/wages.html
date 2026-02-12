@@ -1,65 +1,184 @@
 {% extends 'base.html' %}
-{% block title %}Wages · Mega Coffee HR{% endblock %}
-{% block nav_wages_active %}active{% endblock %}
 {% load humanize %}
 
+{% block title %}Wages · Mega Coffee HR{% endblock %}
+{% block nav_wages_active %}active{% endblock %}
+
 {% block content %}
-<div class="page-header">
-  <h1>월급</h1>
-</div>
-<div class="card">
-  <h2>{{ filter_date }}</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th style="width: 20%; ">직원 이름</th>
-        <th style="width: 20%;">시급</th>
-        <th style="width: 20%;">시급 변경</th>
-        <th style="width: 20%;">총 근무 시간 (단위: HOUR)<th>
-        <th style="width: 20%;">월급</th>
-      </tr>
-    </thead>
+<style>
+    /* 1. 헤더 영역 압축: 타이틀과 날짜 선택을 한 줄로 */
+    .compact-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px; /* 아래 리스트와의 간격만 유지 */
+        padding: 4px 0;
+    }
 
-    <tbody>
-      {% for item in salary_list %}
-      <tr>
-        <td>
-          {{ item.employee.full_name }}
-          <span class="dot" style="background-color: {{ item.employee.color_tag }};"></span>
-        </td>
-        <td>
-          ₩ {{ item.hourly_wage|intcomma }}
-        </td>
-       
-        <td style="white-space: nowrap;">
-          <form method="post" action="{% url 'wages:hourly_wage_change' item.employee.id %}?date={{ filter_date }}">
-            {% csrf_token %}
-            <select name="new_hourly_wage" onchange="this.form.submit()" style="padding:4px 8px; border-radius:6px;">
-              {% for w in wage_choices %}
-                <option value="{{ w }}" {% if w == item.hourly_wage %}selected{% endif %}>
-                  {{ w|intcomma }}원
-                </option>
-              {% endfor %}
-            </select>
-          </form>
-        </td>
-        <td>
-          {{ item.total_hour }}
-        </td>
-        <td style="white-space: nowrap;">
-          ₩ {{ item.monthly_salary|floatformat:0|intcomma }}
-        </td>
-        
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="5" style="text-align: center; padding: 2rem; color: #888;">
-          해당 월에 근무 기록이 없습니다.
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    .compact-header h1 {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .date-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        padding: 6px 12px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .date-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #6b7280;
+    }
+
+    /* 2. 리스트 스타일 개선 */
+    .salary-item {
+        background: white;
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 8px; /* 간격 축소 */
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .salary-item:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border-color: #fdd000;
+    }
+
+    .salary-main {
+        padding: 16px 20px; /* 패딩 축소 */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .emp-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .emp-name { font-size: 17px; font-weight: 700; color: #111827; }
+
+    .amount-box { text-align: right; }
+    .main-amount { font-size: 22px; font-weight: 800; color: #2563eb; }
+    .tax-text { font-size: 12px; color: #9ca3af; margin-top: 1px; }
+
+    /* 상세 내역 */
+    .salary-detail {
+        display: none;
+        padding: 16px 20px;
+        background: #f9fafb;
+        border-top: 1px solid #f3f4f6;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 16px;
+    }
+
+    .detail-col { display: flex; flex-direction: column; gap: 2px; }
+    .label { font-size: 12px; color: #9ca3af; }
+    .value { font-size: 14px; font-weight: 600; color: #374151; }
+
+    .wage-select {
+        padding: 3px 6px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 13px;
+    }
+
+    .empty-wage {
+        text-align: center;
+        padding: 40px;
+        color: #9ca3af;
+    }
+</style>
+
+<div class="compact-header">
+    <h1>급여 정산 & 시급 관리</h1>
+    
+    <div class="date-selector">
+        <span class="date-label">정산 월</span>
+        <input type="month" value="{{ filter_date }}" 
+               onchange="window.location.href='?date='+this.value" 
+               style="border: none; outline: none; cursor: pointer; font-weight: 700; color: #1f2937;">
+    </div>
 </div>
 
+<div class="salary-list-container">
+    {% for item in salary_list %}
+    <div class="salary-item">
+        <div class="salary-main" onclick="toggleDetail(this)">
+            <div class="user-profile">
+                <div class="emp-dot" style="background-color: {{ item.employee.color_tag|default:'#fbbf24' }};"></div>
+                <span class="emp-name">{{ item.employee.full_name }}</span>
+            </div>
+            
+            <div class="amount-box">
+                <div class="main-amount">₩ {{ item.after_tax_monthly_salary|floatformat:0|intcomma }}</div>
+                <div class="tax-text">실지급액 (3.3% 공제)</div>
+            </div>
+        </div>
+
+        <div class="salary-detail">
+            <div class="detail-grid">
+                <div class="detail-col">
+                    <span class="label">총 근무 시간</span>
+                    <span class="value">{{ item.total_hour }} H</span>
+                </div>
+                
+                <div class="detail-col">
+                    <span class="label">적용 시급</span>
+                    <div class="value">
+                        <form method="post" action="{% url 'wages:hourly_wage_change' item.employee.id item.effective_start_date|date:'Y-m-d' %}">
+                            {% csrf_token %}
+                            <select name="new_hourly_wage" class="wage-select" onchange="this.form.submit()">
+                                {% for w in wage_choices %}
+                                    <option value="{{ w }}" {% if w == item.hourly_wage %}selected{% endif %}>
+                                        {{ w|intcomma }}원
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="detail-col">
+                    <span class="label">세전 급여</span>
+                    <span class="value">₩ {{ item.before_tax_monthly_salary|floatformat:0|intcomma }}</span>
+                </div>
+
+                <div class="detail-col">
+                    <span class="label">정산일</span>
+                    <span class ="value"> 매달 10일</span>
+                    <span class="value">{{ filter_date }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-wage">
+        <p>해당 월의 정산 내역이 없습니다.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function toggleDetail(element) {
+        const detail = element.nextElementSibling;
+        const isVisible = detail.style.display === 'block';
+        detail.style.display = isVisible ? 'none' : 'block';
+    }
+</script>
 {% endblock %}

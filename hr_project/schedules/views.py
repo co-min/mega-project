@@ -3,9 +3,8 @@ from datetime import date
 from .models import Schedule, DayWorkPlan
 from schedules.constants import TIME_MAP
 
-
 # monthly 스케줄 생성
-def generate_monthly_schedule_view(request, year, month):
+def generate_monthly_schedule(year, month, employee=None):
   for day in range(1,32):
     try: 
       current_date = date (year, month, day)
@@ -17,12 +16,15 @@ def generate_monthly_schedule_view(request, year, month):
     schedules = Schedule.objects.filter(
       work_day= weekday,
       is_active = True,
-      employee__is_active = True
-    ).exclude( # 입사일 이후 생성
-      employee__created_at__gt=current_date
+      employee__is_active = True,
+      employee__created_at__lte=current_date
     ).exclude( # 퇴사일 이후 생성 X
       employee__resign_at__lt=current_date
     )
+    
+    if employee:
+      schedules = schedules.filter(employee=employee)
+
     for s in schedules:
       start_time, end_time = TIME_MAP[s.work_time]
       DayWorkPlan.objects.get_or_create(
@@ -34,5 +36,3 @@ def generate_monthly_schedule_view(request, year, month):
           'schedule' : s,
         }
       )
-
-    return redirect('employees:list') 

@@ -16,7 +16,7 @@ def attendance_view(request):
 
     context = {
         'records': today_work_list,
-        'filter_date': filter_date,
+        'filter_date': filter_date_obj,
         'today': today,
     }
     return render(request, "attendance/attendance_page.html", context)
@@ -90,11 +90,12 @@ def day_attendance_view(request):
     return render(request, 'attendance/attendance_page.html', context)
 
 # 관리자 -> 출퇴근 시간 직접 수정
-def admin_update_attendance_view(request,attendance_id):
-    record = get_object_or_404(AttendanceRecord, id=attendance_id)
+def admin_update_attendance_view(request):
     if request.method=='POST':
+        attendance_id = request.POST.get("attendance_id")
         new_check_in = request.POST.get('new_check_in')
         new_check_out = request.POST.get('new_check_out')
+        record = get_object_or_404(AttendanceRecord, id=attendance_id)
     
         record.check_in = datetime.strptime(new_check_in, "%H:%M").time()
         record.check_out = datetime.strptime(new_check_out, "%H:%M").time()
@@ -103,9 +104,5 @@ def admin_update_attendance_view(request,attendance_id):
         messages.success(request, f'{record.employee.full_name}님의 근무 시간이 수정되었습니다.')
         record.save()
     
-    context ={
-        'new_check_in' : new_check_in,
-        'new_check_out' : new_check_out,
-    }
-
-    return render(request, 'attendance/attendance_page.html', context)
+        return redirect('attendances:attendances')
+    return redirect('attendances:attendances')

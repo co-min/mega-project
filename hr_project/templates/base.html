@@ -27,19 +27,19 @@
 			<nav class="menu">
 				<a href="{% url 'dashboard' %}" class="menu-item {% block nav_dashboard_active %}{% endblock %}">
 					<span class="icon">📊</span>
-					<span>Dashboard</span>
+					<span>대시보드</span>
 				</a>
 				<a href="{% url 'attendances:attendances' %}" class="menu-item {% block nav_attendance_active %}{% endblock %}">
 					<span class="icon">🗓️</span>
-					<span>Attendance</span>
+					<span>근태</span>
 				</a>
 				<a href="{% url 'employees:list' %}" class="menu-item {% block nav_employees_active %}{% endblock %}">
 					<span class="icon">👥</span>
-					<span>Employees</span>
+					<span>직원 관리</span>
 				</a>
 				<a href="{% url 'wages:monthly' %}" class="menu-item {% block nav_wages_active %}{% endblock %}">
-					<span class="icon">💸</span>
-					<span>Wages</span>
+					<span class="icon">🧾</span>
+					<span>급여</span>
 				</a>
 
 			</nav>
@@ -50,6 +50,7 @@
 	</aside>
 
 	<main class="content">
+		{% block topbar_search %}
 		<header class="topbar">
 			<div class="search">
 				<span class="icon">🔍</span>
@@ -57,6 +58,8 @@
 			</div>
 			<button class="notify">🔔</button>
 		</header>
+		{% endblock %}
+
 
 		<section class="page">
 			{% block content %}{% endblock %}

@@ -3,9 +3,10 @@ from django.contrib import messages
 from django.db import transaction
 from datetime import date
 from .models import Employee
-from schedules.models import Schedule
+from schedules.models import Schedule, DayWorkPlan
 from schedules.constants import WEEKDAYS, WORK_TIME, WORK_TYPE
 from wages.models import Wage
+from schedules.views import generate_monthly_schedule
 
 # 직원 목록 페이지
 def employees_list_view(request):
@@ -34,7 +35,7 @@ def create_employee_form_view(request):
         work_type = request.POST.get('work_type')
         work_day = request.POST.getlist('work_day')
         work_time = request.POST.get('work_time')
-        is_breaktime = request.POST.get('breaktime')
+        is_breaktime = request.POST.get('is_breaktime') =='on'
         attendance_pin = request.POST.get('attendance_pin')
         color_tag = request.POST.get('color_tag')
 
@@ -50,15 +51,19 @@ def create_employee_form_view(request):
                     attendance_pin=attendance_pin,
                     color_tag=color_tag,
                     is_breaktime=is_breaktime,
+                    created_at = date.today()
                 )
                 # 직원 스케줄 저장
                 save_employee_schedule(employee, work_type, work_day, work_time)
+            
                 # 기본 월급 생성
                 Wage.objects.create(
                     employee= employee,
                     hourly_wage = 10500,
                     effective_start_date = date.today(),
                 )
+                today=date.today()
+                generate_monthly_schedule(today.year, today.month, employee)
                 messages.success(request, f'{full_name} 직원이 등록되었습니다.')
                 return redirect('employees:list')
 
@@ -82,7 +87,7 @@ def edit_employee_form_view(request, pk):
         work_type = request.POST.get('work_type')
         work_day = request.POST.getlist('work_day')
         work_time = request.POST.get('work_time')
-        is_breaktime = request.POST.get('breaktime')
+        is_breaktime = request.POST.get('is_breaktime') =='on'
         attendance_pin = request.POST.get('attendance_pin')
         color_tag = request.POST.get('color_tag')
 
@@ -100,6 +105,13 @@ def edit_employee_form_view(request, pk):
                 employee.save()
                 # 직원 스케줄 변경
                 save_employee_schedule(employee, work_type, work_day, work_time)
+
+                today= date.today()
+                DayWorkPlan.objects.filter(
+                    employee=employee,
+                    work_date__gte=today,
+                ).delete()
+                generate_monthly_schedule(today.year, today.month, employee)
                 messages.success(request, f'{full_name} 직원의 정보가 수정되었습니다.')
                 return redirect('employees:list')
         except Exception as e:

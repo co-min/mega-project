@@ -297,7 +297,6 @@
                 {%if employee.is_breaktime %}{% endif %}
                 <span> 없음 </span><br>
                 <span class="color-hint"> 해당 란을 체크 하지 않을 경우, 법적으로 4시간 이상 근무 시 30분, 8시간 이상 근무 시 1시간의 휴게시간이 자동 부여됩니다.</span>
-
             </label>
         </label>
       </div>
@@ -335,16 +334,6 @@
     </div>
   </div>
 
-  <!-- 추가 정보 섹션 -->
-  <div class="form-section">
-    <h3 class="section-title">📝 추가 정보</h3>
-    <div class="form-grid">
-      <div class="form-field span-2">
-        <label>메모</label>
-        <textarea name="memo" placeholder="추가 메모사항을 입력하세요">{{ employee.memo|default:'' }}</textarea>
-      </div>
-    </div>
-  </div>
   <div class="form-actions">
     <a href="{% url 'employees:list' %}" class="btn">‹ 이전</a>
     <button class="btn primary" type="submit">{% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>

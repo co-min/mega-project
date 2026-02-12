@@ -1,86 +1,218 @@
 {% extends 'base.html' %}
 {% load humanize %}
+
 {% block title %}Employees · Mega Coffee HR{% endblock %}
 {% block nav_employees_active %}active{% endblock %}
 
 {% block content %}
-  <div class="page-header">
-    <h1>근무자 정보</h1>
-    <div class="actions">
-      <a href="{% url 'employees:create' %}" class="btn primary" >직원 추가</a>
-    </div>
-  </div>
-<div class="card">
-  <h2>employees</h2>
-  <table class="table">
-    <thead>
-      <tr>
-        <th style ="width: 15%;">직원 이름</th>
-        <th style ="width: 15%;">근무 유형</th>
-        <th style ="width: 20%;">근무 요일</th>
-        <th style ="width: 20%;">근무 시간</th>
-        <th style ="width: 15%;">시급</th>
-        <th style ="width: 15%;">관리</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for emp in employees %}
-      <tr>
-        <!--이름-->
-        <td>
-          <div class="user">
-            <span> {{ emp.full_name }} </span>
-            <span class="dot" style="background-color: {{ emp.color_tag }};"></span>
-          </div>
-        </td>
-        <!--근무 유형-->
-        <td>
-          {% with emp.schedules.first as first_schedule %}
-            {{ first_schedule.get_work_type_display }}
-          {% endwith %}
-        </td>
-        <!--근무 요일-->
-        <td>
-          {% for s in emp.schedules.all %}
-            {{ s.get_work_day_display }}{% if not forloop.last %}, {% endif %}
-          {% empty %}
-            -
-          {% endfor %}
-        </td>
-        <!--근무 시간-->
-        <td>
-          {% with emp.schedules.first as first_schedule %}
-            {{ first_schedule.get_work_time_display }}
-          {% endwith %}
-        </td>
-        <!--시급-->
-        <td>
-          {% with emp.wages.all|dictsortreversed:"effective_start_date"|first as current_wage %}
-            {% if current_wage %}
-              ₩ {{ current_wage.hourly_wage|floatformat:0|intcomma }}
-            {% else %}
-              -
-            {% endif %}
-          {% endwith %}
-        </td>
-        <td>
-          <div style="display: flex; gap: 8px;">
-            <a href="{% url 'employees:edit' emp.pk %}" class="btn" style="padding: 4px 12px; font-size: 14px;">수정</a>
-            <form method="post" action="{% url 'employees:delete' emp.pk %}" style="display: inline;" onsubmit="return confirm('{{ emp.full_name }} 직원을 삭제하시겠습니까?');">
-              {% csrf_token %}
-              <button type="submit" class="btn" style="padding: 4px 12px; font-size: 14px; background: #ef4444; color: white;">삭제</button>
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .employee-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* 반응형 그리드 */
+        gap: 24px;
+    }
+
+    .mc-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .mc-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.08);
+        border-color: #fdd000; /* 호버 시 메가커피 노란색 포인트 */
+    }
+
+    /* 카드 상단: 프로필 */
+    .mc-card-header {
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .mc-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        color: white;
+        font-weight: 700;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .mc-info h3 {
+        margin: 0 0 4px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .mc-badge {
+        display: inline-block;
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 99px;
+        background-color: #f3f4f6;
+        color: #4b5563;
+        font-weight: 500;
+    }
+
+    .mc-edit-btn {
+        margin-left: auto; /* 우측 끝으로 밀기 */
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: #9ca3af;
+        text-decoration: none;
+        transition: background 0.2s;
+    }
+    .mc-edit-btn:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+    }
+
+    /* 카드 몸통: 정보 */
+    .mc-card-body {
+        padding: 20px;
+        flex: 1;
+    }
+
+    .mc-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+    }
+    
+    .mc-row:last-child { margin-bottom: 0; }
+    
+    .mc-label { color: #6b7280; }
+    .mc-value { font-weight: 500; color: #374151; text-align: right;}
+    .mc-value.price { color: #2563eb; font-weight: 700; font-size: 15px; }
+
+    /* 카드 하단: 액션 */
+    .mc-card-footer {
+        padding: 12px 20px;
+        background-color: #f9fafb;
+        border-top: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .mc-btn-delete {
+        background: none;
+        border: none;
+        font-size: 13px;
+        color: #ef4444;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    .mc-btn-delete:hover { text-decoration: underline; }
+    
+    /* 빈 상태 */
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px;
+        background: #f9fafb;
+        border-radius: 16px;
+        border: 2px dashed #e5e7eb;
+        color: #9ca3af;
+    }
+</style>
+
+<div class="page-header">
+    <h1 style="font-size: 24px; font-weight: 700; color: #1f2937;">직원 관리</h1>
+    <a href="{% url 'employees:create' %}" class="btn primary" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">+ 직원 추가</a>
+</div>
+
+<div class="employee-grid">
+    {% for emp in employees %}
+    <div class="mc-card">
+        <div class="mc-card-header">
+            <div class="mc-avatar" style="background-color: {{ emp.color_tag|default:'#fbbf24' }};">
+                {{ emp.full_name|slice:":1" }}
+            </div>
+            <div class="mc-info">
+                <h3>{{ emp.full_name }}</h3>
+                <span class="mc-badge">
+                    {% with emp.schedules.first as first_schedule %}
+                        {{ first_schedule.get_work_type_display|default:"직책 미정" }}
+                    {% endwith %}
+                </span>
+            </div>
+            <a href="{% url 'employees:edit' emp.pk %}" class="mc-edit-btn" title="수정">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/>
+                </svg>
+            </a>
+        </div>
+
+        <div class="mc-card-body">
+            <div class="mc-row">
+                <span class="mc-label">현재 시급</span>
+                <span class="mc-value price">
+                    {% with emp.wages.all|dictsortreversed:"effective_start_date"|first as current_wage %}
+                        {% if current_wage %}
+                            ₩{{ current_wage.hourly_wage|floatformat:0|intcomma }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    {% endwith %}
+                </span>
+            </div>
+            <div class="mc-row">
+                <span class="mc-label">근무 요일</span>
+                <span class="mc-value">
+                    {% for s in emp.schedules.all %}
+                        {{ s.get_work_day_display }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </span>
+            </div>
+            <div class="mc-row">
+                <span class="mc-label">근무 시간</span>
+                <span class="mc-value">
+                    {% with emp.schedules.first as first_schedule %}
+                        {{ first_schedule.get_work_time_display|default:"-" }}
+                    {% endwith %}
+                </span>
+            </div>
+        </div>
+
+        <div class="mc-card-footer">
+            <form method="post" action="{% url 'employees:delete' emp.pk %}" onsubmit="return confirm('{{ emp.full_name }} 직원을 삭제하시겠습니까?');">
+                {% csrf_token %}
+                <button type="submit" class="mc-btn-delete">직원 삭제</button>
             </form>
-          </div>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="6" style="text-align: center; padding: 2rem; color: #888;">
-          등록된 직원이 없습니다. "직원 추가" 버튼을 눌러 직원을 추가하세요.
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <p>등록된 직원이 없습니다. <br>우측 상단의 버튼을 눌러 첫 직원을 등록해주세요.</p>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
