@@ -24,9 +24,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('profile/', views.profile_view, name='profile'),
     path('setting/', views.setting_view, name='setting'),
-    path('', include('dashboards.urls')),
+    path('', include('attendances.urls')),
+    path('dashboards/', include('dashboards.urls')),
     path('employees/', include('employees.urls')),
-    path('attendance/', include('attendances.urls')),
+    path('attendances/', include('attendances.urls')),
     path('schedules/', include('schedules.urls')),
     path('wages/', include('wages.urls')),
 ]

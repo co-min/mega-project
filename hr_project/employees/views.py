@@ -35,7 +35,6 @@ def create_employee_form_view(request):
         work_type = request.POST.get('work_type')
         work_day = request.POST.getlist('work_day')
         work_time = request.POST.get('work_time')
-        is_breaktime = request.POST.get('is_breaktime') =='on'
         attendance_pin = request.POST.get('attendance_pin')
         color_tag = request.POST.get('color_tag')
 
@@ -50,7 +49,6 @@ def create_employee_form_view(request):
                     full_name=full_name,
                     attendance_pin=attendance_pin,
                     color_tag=color_tag,
-                    is_breaktime=is_breaktime,
                     created_at = date.today()
                 )
                 # 직원 스케줄 저장
@@ -87,7 +85,6 @@ def edit_employee_form_view(request, pk):
         work_type = request.POST.get('work_type')
         work_day = request.POST.getlist('work_day')
         work_time = request.POST.get('work_time')
-        is_breaktime = request.POST.get('is_breaktime') =='on'
         attendance_pin = request.POST.get('attendance_pin')
         color_tag = request.POST.get('color_tag')
 
@@ -99,7 +96,6 @@ def edit_employee_form_view(request, pk):
             with transaction.atomic():
                 # 직원 수정
                 employee.full_name = full_name
-                employee.is_breaktime = is_breaktime
                 employee.attendance_pin = attendance_pin
                 employee.color_tag = color_tag
                 employee.save()

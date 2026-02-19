@@ -1,252 +1,390 @@
 {% extends 'base.html' %}
-{% load humanize %}
+{% load static %}
 
-{% block title %}Attendance · Mega Coffee HR{% endblock %}
-{% block nav_attendance_active %}active{% endblock %}
+{% block title %}일별 근무 관리{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
 <style>
-    .dashboard-compact { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; }
-    .stat-box { background: white; padding: 12px 24px; border-radius: 16px; border: 1px solid #e5e7eb; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); height: 60px; flex: 1; }
-    .stat-icon { width: 36px; height: 36px; border-radius: 10px; background: #fffbeb; color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-    .stat-text { display: flex; flex-direction: column; }
-    .stat-label { font-size: 12px; color: #6b7280; font-weight: 500; }
-    .stat-number { font-size: 18px; font-weight: 700; color: #111827; }
-    .pos-btn-plump { background: #2563eb; color: white; text-decoration: none; padding: 0 24px; height: 60px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); transition: transform 0.2s, box-shadow 0.2s; border: none; white-space: nowrap; }
-    .pos-btn-plump:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4); }
-
-    .control-bar { 
-        display: flex; justify-content: space-between; align-items: center; 
-        background: white; padding: 16px 24px; border-radius: 16px; 
-        border: 1px solid #e5e7eb; margin-bottom: 24px; 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02); 
-    }
-    
-    .date-display-area { display: flex; align-items: center; gap: 16px; }
-    .current-date-text { font-size: 20px; font-weight: 800; color: #1f2937; }
-    
-    .nav-btn-group { display: flex; gap: 8px; }
-    .date-btn { 
-        background: white; border: 1px solid #d1d5db; width: 32px; height: 32px; 
-        border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; 
-        color: #4b5563; transition: all 0.2s; 
-    }
-    .date-btn:hover { background: #f3f4f6; border-color: #9ca3af; }
-
-    .picker-wrapper { position: relative; display: flex; align-items: center; }
-    .date-input { 
-        border: 1px solid #d1d5db; padding: 8px 12px; border-radius: 8px; 
-        color: #374151; font-family: inherit; font-size: 14px; outline: none; cursor: pointer; 
+    /* 1. 메인 카드 */
+    .daily-card {
         background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        padding: 40px;
+        min-height: 700px;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
-    .date-input:hover { border-color: #9ca3af; }
 
-    .table-container { background: white; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .mc-table { width: 100%; border-collapse: collapse; text-align: left; }
-    .mc-table th { background: #f9fafb; padding: 16px 24px; font-size: 13px; font-weight: 600; color: #6b7280; border-bottom: 1px solid #e5e7eb; }
-    .mc-table td { padding: 20px 24px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 15px; vertical-align: middle; }
-    .mc-table tr:hover { background-color: #f9fafb; }
-    .status-badge { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-    .status-working { background: #dcfce7; color: #166534; }
-    .status-absent { background: #fee2e2; color: #991b1b; }
-    .status-finished { background: #f3f4f6; color: #4b5563; }
-    .status-planned { background: #eff6ff; color: #1e40af; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    .user-info { display: flex; align-items: center; gap: 12px; }
-    .user-avatar { width: 36px; height: 36px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;}
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
+    /* 2. 헤더 레이아웃 (제목 + 날짜선택기 | 포스버튼) */
+    .header-area {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin-bottom: 30px;
+    }
+    
+    /* 제목과 날짜 선택기를 감싸는 그룹 */
+    .title-date-group {
+        display: flex;
+        align-items: center;
+        gap: 16px; /* 제목과 날짜 사이 간격 */
+    }
+
+    .page-title {
+        font-size: 26px; 
+        font-weight: 800; 
+        color: #111; 
+        margin: 0; /* 마진 제거 (flex gap으로 조절) */
+        letter-spacing: -0.5px;
+    }
+
+    /* 날짜 네비게이션 (화살표 + 날짜알약) */
+    .date-nav {
+        display: flex; 
+        align-items: center; 
+        gap: 8px;
+    }
+    
+    /* 화살표 버튼 */
+    .nav-arrow-btn {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        border: 1px solid #eee;
+        background: #fff;
+        color: #555;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 14px;
+    }
+    .nav-arrow-btn:hover {
+        background: #f8f9fa;
+        border-color: #ddd;
+        color: #111;
+    }
+
+    /* 날짜 알약 (중앙) */
+    .date-pill {
+        background-color: #e8f5e9; 
+        color: #2e7d32;
+        padding: 8px 16px; 
+        border-radius: 50px;
+        font-weight: 700; 
+        font-size: 15px;
+        display: inline-flex; 
+        align-items: center; 
+        gap: 8px;
+        cursor: pointer; 
+        position: relative; /* input absolute 배치를 위해 필수 */
+        transition: background-color 0.2s;
+    }
+    .date-pill:hover { background-color: #dcedc8; }
+    
+    /* 숨겨진 날짜 인풋 (알약 위를 덮어서 클릭 유도) */
+    .date-input-hidden {
+        position: absolute; 
+        top: 0; left: 0; 
+        width: 100%; height: 100%;
+        opacity: 0; 
+        cursor: pointer;
+        z-index: 10; /* 글씨보다 위에 오도록 */
+    }
+
+    /* 3. 출퇴근 포스 버튼 */
+    .btn-pos {
+        background-color: #2962ff;
+        color: #ffffff !important;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-flex; align-items: center; gap: 6px;
+        transition: 0.2s;
+        box-shadow: 0 4px 6px rgba(41, 98, 255, 0.2);
+    }
+    .btn-pos:hover {
+        background-color: #1e4bd1;
+        transform: translateY(-2px);
+    }
+
+    /* 4. 테이블 스타일 */
+    .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .table-custom th {
+        color: #999; font-weight: 700; font-size: 13px;
+        border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;
+        text-align: center;
+    }
+    .table-custom td {
+        padding: 24px 0; border-bottom: 1px solid #f8f9fa;
+        vertical-align: middle; text-align: center;
+        color: #333; font-weight: 600; font-size: 15px;
+    }
+    .table-custom th:first-child, .table-custom td:first-child {
+        text-align: left; padding-left: 20px; /* 이름 컬럼 여백 */
+    }
+
+    /* 5. UI 요소들 */
+    .time-box {
+        background-color: #e3f2fd; color: #1565c0;
+        padding: 6px 14px; border-radius: 8px;
+        font-weight: 700; font-size: 14px; display: inline-block;
+    }
+
+    .status-badge { 
+        padding: 6px 12px; border-radius: 6px; 
+        font-size: 13px; font-weight: 700; 
+        display: inline-block; min-width: 70px;
+    }
+    .st-working { background: #e8f5e9; color: #2e7d32; }
+    .st-finished { background: #f1f3f5; color: #495057; }
+    .st-absent { background: #ffebee; color: #c62828; }
+    .st-planned { background: #e3f2fd; color: #1565c0; }
+
+    /* 직원 색상 점 */
+    .dot-custom { 
+        height: 10px; width: 10px; 
+        border-radius: 50%; 
+        display: inline-block; 
+        margin-left: 8px; margin-bottom: 1px;
+    }
+
+    /* 휴게시간 버튼 & 아이콘 */
+    .break-btn {
+        background: #fff; border: 1px solid #ddd;
+        color: #888; padding: 4px 10px; border-radius: 20px;
+        font-size: 12px; font-weight: 600; cursor: pointer;
+        margin: 0 2px; transition: 0.2s;
+    }
+    .break-btn:hover { border-color: #2962ff; color: #2962ff; background: #f0f7ff; }
+
+    .break-confirmed { color: #333; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; justify-content: center; }
+    .check-icon { color: #6200ea; font-size: 18px; }
+
+    /* 수정 버튼 */
+    .btn-edit-row {
+        background: transparent; border: none;
+        color: #aaa; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: underline;
+    }
+    .btn-edit-row:hover { color: #2962ff; }
+
+    /* 모달 */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        display: none; justify-content: center; align-items: center; z-index: 9999;
+    }
     .modal-overlay.active { display: flex; }
-    .modal-box { background: white; width: 400px; border-radius: 20px; padding: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal-title { font-size: 20px; font-weight: 800; margin-bottom: 24px; color: #1f2937; }
-    .modal-field { margin-bottom: 20px; display: flex; flex-direction: column; }
-    .modal-field label { font-size: 13px; font-weight: 600; color: #6b7280; margin-bottom: 8px; }
-    .modal-field input[type="time"] { border: 1px solid #d1d5db; border-radius: 10px; padding: 12px; font-size: 16px; outline: none; transition: border-color 0.2s; }
-    .modal-field input[type="time"]:focus { border-color: #2563eb; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-    .btn-cancel { background: #f3f4f6; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; color: #4b5563; }
-    .btn-save { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; }
-    .btn-save:hover { background: #1d4ed8; }
-    .edit-btn { padding: 6px 14px; border: 1px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: #374151; transition: all 0.2s; }
-    .edit-btn:hover { background: #f9fafb; border-color: #d1d5db; }
+    .modal-box {
+        background: white; width: 360px; padding: 30px; border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-input {
+        width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px;
+        margin-top: 5px; margin-bottom: 15px; font-size: 16px;
+    }
+    .btn-save {
+        width: 100%; padding: 12px; background: #2962ff; color: white;
+        border: none; border-radius: 10px; font-weight: 700; cursor: pointer;
+    }
+    .btn-close-modal {
+        position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #999;
+    }
 </style>
 
-<div class="page-header" style="margin-bottom: 16px;">
-    <h1 style="font-size: 24px; font-weight: 700; color: #1f2937; margin: 0;">일일 근태 관리</h1>
-</div>
-
-<div class="dashboard-compact">
-    <div class="stat-box">
-        <div class="stat-icon">👥</div>
-        <div class="stat-text">
-            <span class="stat-label">오늘 근무 대상</span>
-            <span class="stat-number">{{ records|length }}명</span>
-        </div>
-    </div>
-    <a href="{% url 'attendances:checkin_and_out' %}" target="_blank" class="pos-btn-plump">
-        <span>📱 POS 화면 열기</span>
-    </a>
-</div>
-
-<div class="control-bar">
-    <div class="date-display-area">
-        <div class="nav-btn-group">
-            <button type="button" class="date-btn" onclick="changeDate(-1)"> ❮ </button>
-            <span class="current-date-text"> {{ filter_date|date:"Y년 m월 d일" }} </span>
-            <button type="button" class="date-btn" onclick="changeDate(1)"> ❯ </button>
-        </div>
-    </div>
-    
-    <div class="picker-wrapper">
-        <input type="date" id="datePicker" class="date-input" value="{{ filter_date|date:'Y-m-d' }}" onchange="window.location.href='?date='+this.value">
-    </div>
-</div>
-
-<div class="table-container">
-    <table class="mc-table">
-        <thead>
-            <tr>
-                <th width="15%">직원 이름</th>
-                <th width="12%">출근 시각</th>
-                <th width="12%">퇴근 시각</th>
-                <th width="12%">근무 현황</th>
-                <th width="12%">휴게 여부</th>
-                <th width="12%">대타 여부</th>
-                <th width="15%">관리</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in records %}
-            <tr>
-                <td>
-                    <div class="user-info">
-                        <div class="user-avatar" style="background-color: {{ item.employee.color_tag }};">
-                            {{ item.employee.full_name|slice:":1" }}
-                        </div>
-                        <span style="font-weight: 600; color: #374151;">{{ item.employee.full_name }}</span>
-                    </div>
-                </td>
-                <td>
-                    {% if item.check_in %}
-                        <span style="font-weight: 600;">{{ item.check_in|time:"H:i" }}</span>
-                    {% else %}
-                        <span style="color: #9ca3af;">-</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if item.check_out %}
-                        <span style="font-weight: 600; color: #6b7280;">{{ item.check_out|time:"H:i" }}</span>
-                    {% else %}
-                        <span style="color: #9ca3af;">-</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if item.status == 'working' %}
-                        <span class="status-badge status-working"><span class="dot"></span>근무 중</span>
-                    {% elif item.status == 'finished' %}
-                        <span class="status-badge status-finished">퇴근</span>
-                    {% elif item.status == 'absent' %}
-                        <span class="status-badge status-absent"><span class="dot"></span>결근</span>
-                    {% else %}
-                        <span class="status-badge status-planned">근무 예정</span>
-                    {% endif %}
-                </td>
+<div class="container mt-5">
+    <div class="daily-card">
+        
+        <div class="header-area">
+            
+            <div class="title-date-group">
+                <h2 class="page-title">일별 근무 기록</h2>
                 
-                <td>
-                    {% if item.employee.is_break %}
-                        <span style="color: #2563eb; font-weight: 600; font-size: 13px;">적용 (30분)</span>
-                    {% else %}
-                        <span style="color: #9ca3af; font-size: 13px;">없음</span>
-                    {% endif %}
-                </td>
-
-                <td>
-                    {% if item.is_substitute %}
-                        <span style="background: #fffbeb; color: #b45309; font-size: 12px; padding: 2px 6px; border-radius: 4px; border: 1px solid #fcd34d;">대타 근무</span>
-                    {% else %}
-                        <span style="color: #d1d5db;">-</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <button class="edit-btn" 
-                        onclick="openModal(
-                            '{{ item.employee.id }}', 
-                            '{{ filter_date|date:'Y-m-d' }}', 
-                            '{{ item.check_in|date:'H:i' }}', 
-                            '{{ item.check_out|date:'H:i' }}'
-                        )">
-                        ✏️ 시간 수정
+                <div class="date-nav">
+                    <button class="nav-arrow-btn" onclick="moveDate(-1)">
+                        <i class="bi bi-chevron-left"></i>
                     </button>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" style="text-align: center; padding: 60px 0; color: #9ca3af;">
-                    <div style="font-size: 40px; margin-bottom: 10px;">📅</div>
-                    해당 날짜에 근무 예정자나 기록이 없습니다.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+                    <form id="dateForm" method="GET" style="margin:0;">
+                        <div class="date-pill">
+                            <i class="bi bi-calendar-check"></i>
+                            <span>{{ filter_date|date:"m월 d일, D" }}</span>
+                            
+                            <input type="date" name="date" id="dateInput" class="date-input-hidden" 
+                                   value="{{ filter_date|date:'Y-m-d' }}" 
+                                   onchange="document.getElementById('dateForm').submit()">
+                        </div>
+                    </form>
+
+                    <button class="nav-arrow-btn" onclick="moveDate(1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <a href="{% url 'attendances:checkin_and_out' %}" target="_blank" class="btn-pos">
+                출퇴근 포스
+            </a>
+        </div>
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th width="15%">직원 이름</th>
+                    <th width="20%">출근 시각</th>
+                    <th width="20%">퇴근 시각</th>
+                    <th width="15%">근무현황</th>
+                    <th width="20%">휴게시간</th>
+                    <th width="10%">관리</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in records %}
+                <tr>
+                    <td>
+                        {{ item.employee.full_name }}
+                        <span class="dot-custom" style="background-color: {{ item.employee.color_tag|default:'#ccc' }};"></span>
+                    </td>
+
+                    <td>
+                        {% if item.check_in %}
+                            <span class="time-box">{{ item.check_in|time:"H:i A" }}</span>
+                        {% else %}
+                            <span style="color:#ddd;">-</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.check_out %}
+                            <span class="time-box">{{ item.check_out|time:"H:i A" }}</span>
+                        {% else %}
+                            <span style="color:#ddd;">-</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.status == 'WORKING' %}
+                            <span class="status-badge st-working">근무중</span>
+                        {% elif item.status == 'FINISHED' %}
+                            <span class="status-badge st-finished">퇴근</span>
+                        {% elif item.status == 'ABSENT' %}
+                            <span class="status-badge st-absent">병가</span>
+                        {% else %}
+                            <span class="status-badge st-planned">{{ item.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if item.breaktime > 0 %}
+                            <div class="break-confirmed">
+                                <i class="bi bi-check-circle-fill check-icon"></i>
+                                <span>{{ item.breaktime }}분</span>
+                            </div>
+                        {% else %}
+                            <span class="break-btn" onclick="submitBreakTime('{{ item.employee.id }}', '30')">30분</span>
+                            <span style="color:#eee;">|</span>
+                            <span class="break-btn" onclick="submitBreakTime('{{ item.employee.id }}', '60')">60분</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <button class="btn-edit-row" 
+                            onclick="openEditModal(
+                                '{{ item.record.id }}', 
+                                '{{ item.check_in|time:'H:i' }}', 
+                                '{{ item.check_out|time:'H:i' }}', 
+                                '{{ item.employee.full_name }}'
+                            )">
+                            수정
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 80px 0; color: #bbb;">
+                        해당 날짜에 근무 기록이 없습니다.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div class="modal-overlay" id="editModal">
-    <div class="modal-box">
-        <div class="modal-title">근태 기록 수정</div>
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box" style="position: relative;">
+        <button onclick="closeEditModal()" class="btn-close-modal"><i class="bi bi-x-lg"></i></button>
+        <h3 style="font-size:20px; font-weight:800; margin-bottom:20px;">시간 수정</h3>
         
         <form method="POST" action="{% url 'attendances:update' %}">
             {% csrf_token %}
-            <input type="hidden" name="employee_id" id="modalEmployeeId">
-            <input type="hidden" name="date" id="modalDate">
-
-            <div class="modal-field">
-                <label>출근 시각</label>
-                <input type="time" name="check_in" id="modalCheckIn">
-            </div>
-
-            <div class="modal-field">
-                <label>퇴근 시각</label>
-                <input type="time" name="check_out" id="modalCheckOut">
-            </div>
-
-            <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="closeModal()">취소</button>
-                <button type="submit" class="btn-save">저장하기</button>
-            </div>
+            <input type="hidden" name="attendance_id" id="modalAttendanceId">
+            
+            <label style="font-size:13px; color:#888; font-weight:700; display:block; margin-bottom:4px;">직원명</label>
+            <input type="text" id="modalEmpName" class="modal-input" disabled style="background:#f9fafb; color:#555;">
+            
+            <label style="font-size:13px; color:#888; font-weight:700; display:block; margin-bottom:4px;">출근 시간</label>
+            <input type="time" name="new_check_in" id="modalCheckIn" class="modal-input" required>
+            
+            <label style="font-size:13px; color:#888; font-weight:700; display:block; margin-bottom:4px;">퇴근 시간</label>
+            <input type="time" name="new_check_out" id="modalCheckOut" class="modal-input" required>
+            
+            <button type="submit" class="btn-save">수정 완료</button>
         </form>
     </div>
 </div>
 
+<form id="breakTimeForm" method="POST" action="{% url 'attendances:break' %}" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="date" value="{{ filter_date|date:'Y-m-d' }}">
+    <input type="hidden" name="employee_id" id="breakEmpId">
+    <input type="hidden" name="breaktime" id="breakTimeValue">
+</form>
+
 <script>
-    function changeDate(days) {
-        const dateInput = document.getElementById('datePicker');
-        if (!dateInput.value) return;
-        const currentDate = new Date(dateInput.value);
-        currentDate.setDate(currentDate.getDate() + days);
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-        const day = String(currentDate.getDate()).padStart(2, '0');
-        window.location.href = '?date=' + `${year}-${month}-${day}`;
+    // 1. 날짜 이동
+    function moveDate(days) {
+        const dateInput = document.getElementById('dateInput');
+        // dateInput.value가 비어있을 경우(오늘) 대비
+        const baseDate = dateInput.value ? new Date(dateInput.value) : new Date();
+        
+        baseDate.setDate(baseDate.getDate() + days);
+        
+        const year = baseDate.getFullYear();
+        const month = String(baseDate.getMonth() + 1).padStart(2, '0');
+        const day = String(baseDate.getDate()).padStart(2, '0');
+        
+        // 이동
+        window.location.search = '?date=' + `${year}-${month}-${day}`;
     }
 
-    function openModal(empId, dateStr, checkIn, checkOut) {
-        const modal = document.getElementById("editModal");
-        modal.classList.add('active');
-        document.getElementById("modalEmployeeId").value = empId;
-        document.getElementById("modalDate").value = dateStr;
-        document.getElementById("modalCheckIn").value = checkIn || "";
-        document.getElementById("modalCheckOut").value = checkOut || "";
-    }
-
-    function closeModal() {
-        document.getElementById("editModal").classList.remove('active');
-    }
-
-    document.getElementById("editModal").addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeModal();
+    // 2. 모달 열기/닫기
+    function openEditModal(recordId, checkIn, checkOut, empName) {
+        if (!recordId || recordId === 'None') {
+            alert('출근 기록이 없는 상태에서는 수정할 수 없습니다.');
+            return;
         }
+        document.getElementById('modalAttendanceId').value = recordId;
+        document.getElementById('modalEmpName').value = empName;
+        document.getElementById('modalCheckIn').value = checkIn;
+        document.getElementById('modalCheckOut').value = checkOut;
+        document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('active');
+    }
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
     });
+
+    // 3. 휴게시간 전송
+    function submitBreakTime(empId, time) {
+        if(confirm(time + '분 휴게시간을 적용하시겠습니까?')) {
+            document.getElementById('breakEmpId').value = empId;
+            document.getElementById('breakTimeValue').value = time;
+            document.getElementById('breakTimeForm').submit();
+        }
+    }
 </script>
 {% endblock %}

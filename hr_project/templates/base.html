@@ -2,14 +2,38 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>{% block title %}Mega Coffee HR{% endblock %}</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<style>
+	.app {
+		display: grid !important;
+		grid-template-columns: 280px 1fr !important;
+		min-height: 100vh;
+		overflow: hidden;
+	}
+
+	.sidebar {
+		position: static !important; /* fixed를 강제로 끔 */
+		height: 100vh !important;
+		background: #fff7dc; /* 배경색 확인용 */
+		z-index: 1;
+	}
+
+	.content {
+		height: 100vh !important;
+		overflow-y: auto !important;
+		background: #ffffff; /* 배경색 확인용 */
+	}
+	
+	@media (max-width: 1024px) {
+			.app {
+					grid-template-columns: 280px 1fr !important; /* 모바일에서도 일단 강제로 2단 분리 */
+			}
+	}
+</style>
 </head>
+
 <body>
 	<div class="app">
 		<aside class="sidebar">
@@ -25,10 +49,6 @@
 				</div>
 			</div>
 			<nav class="menu">
-				<a href="{% url 'dashboard' %}" class="menu-item {% block nav_dashboard_active %}{% endblock %}">
-					<span class="icon">📊</span>
-					<span>대시보드</span>
-				</a>
 				<a href="{% url 'attendances:attendances' %}" class="menu-item {% block nav_attendance_active %}{% endblock %}">
 					<span class="icon">🗓️</span>
 					<span>근태</span>
@@ -41,8 +61,8 @@
 					<span class="icon">🧾</span>
 					<span>급여</span>
 				</a>
-
 			</nav>
+
 			<div class="menu-secondary">
 			<a href="{% url 'profile' %}" class="menu-item {% block nav_profile_active %}{% endblock %}"><span class="icon">👤</span><span>Profile</span></a>
 			<a href="{% url 'setting' %}" class="menu-item {% block nav_setting_active %}{% endblock %}"><span class="icon">⚙️</span><span>Setting</span></a>
@@ -50,22 +70,10 @@
 	</aside>
 
 	<main class="content">
-		{% block topbar_search %}
-		<header class="topbar">
-			<div class="search">
-				<span class="icon">🔍</span>
-				<input type="text" placeholder="Search..." />
-			</div>
-			<button class="notify">🔔</button>
-		</header>
-		{% endblock %}
-
-
 		<section class="page">
 			{% block content %}{% endblock %}
 		</section>
 	</main>
-		</main>
 	</div>
 </body>
 </html>

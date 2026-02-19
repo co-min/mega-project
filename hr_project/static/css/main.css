@@ -5,7 +5,19 @@ body { margin: 0; font-family: 'Pretendard', system-ui, -apple-system, Segoe UI,
 
 /* Layout */
 .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; overflow:hidden; }
-.sidebar { background: #fff7dc; border-right: 1px solid #f2e8bf; padding: 22px; display: flex; flex-direction: column; gap: 18px;position: fixed; }
+/* 수정 후 추천 코드 */
+.sidebar {
+    background: #fff7dc;
+    border-right: 1px solid #f2e8bf;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    /* position: fixed; 삭제됨 */
+    height: 100vh; /* 사이드바 높이 꽉 채우기 */
+}
+
+
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
 .brand-logo { width: 20px; height: 20px; }
 .profile { display: flex; align-items: center; gap: 12px; padding: 14px; background: #ffffff; border-radius: 14px; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
@@ -19,7 +31,11 @@ body { margin: 0; font-family: 'Pretendard', system-ui, -apple-system, Segoe UI,
 .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; color: #334155; text-decoration: none; }
 .menu-item.active, .menu-item:hover { background: #ffffff; box-shadow: inset 0 0 0 1px #e5e7eb; }
 
-.content { background: #ffffff; }
+.content {
+    background: #ffffff;
+    height: 100vh;     /* 높이 고정 */
+    overflow-y: auto;  /* 내용이 많으면 오른쪽만 스크롤 되게 */
+}
 /* Center content blocks */
 .content .topbar,
 .content .page { max-width: 1280px; margin: 0 auto; }
@@ -134,5 +150,4 @@ body { margin: 0; font-family: 'Pretendard', system-ui, -apple-system, Segoe UI,
   .grid-2 { grid-template-columns: 1fr; }
   .search { width: 100%; }
 }
-
 

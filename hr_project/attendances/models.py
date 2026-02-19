@@ -21,6 +21,8 @@ class AttendanceRecord(models.Model):
         choices=Status.choices,
         default=Status.WORKING
     )
+    breaktime = models.IntegerField(default =0)
+
     
     class Meta:
         ordering = ['-date', '-check_in']
