@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}월 급여 내역{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+<style>
+    /* 1. 메인 카드 스타일 */
+    .wage-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        padding: 40px;
+        min-height: 700px;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+    }
+
+    /* 2. 헤더 영역 */
+    .header-area {
+        display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;
+    }
+    
+    .title-group {
+        display: flex; align-items: center; gap: 16px;
+    }
+
+    .page-title {
+        font-size: 26px; font-weight: 800; color: #111; margin: 0; letter-spacing: -0.5px;
+    }
+
+    /* 날짜 네비게이션 */
+    .date-nav { display: flex; align-items: center; gap: 8px; }
+    
+    .nav-arrow-btn {
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 1px solid #eee; background: #fff; color: #555;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.2s;
+    }
+    .nav-arrow-btn:hover { background: #f8f9fa; border-color: #ddd; color: #111; }
+
+    /* 날짜 표시 텍스트 (이미지 스타일) */
+    .date-text {
+        font-size: 18px; font-weight: 700; color: #2962ff; cursor: pointer;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .date-input-hidden {
+        position: absolute; width: 1px; height: 1px; opacity: 0;
+    }
+
+    /* 3. 테이블 스타일 */
+    .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
+    
+    .table-custom th {
+        color: #999; font-weight: 700; font-size: 13px;
+        border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;
+        text-align: right;
+    }
+    .table-custom th:first-child { text-align: left; padding-left: 10px; } /* 이름 */
+    
+    .table-custom td {
+        padding: 24px 0; border-bottom: 1px solid #f8f9fa;
+        vertical-align: middle; text-align: right;
+        color: #333; font-weight: 600; font-size: 15px;
+    }
+    .table-custom td:first-child { text-align: left; padding-left: 10px; }
+
+    /* 4. UI 요소들 */
+    .dot-custom { 
+        height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-left: 8px;
+    }
+
+    /* 금액 텍스트 */
+    .money-text { font-family: 'Roboto', sans-serif; letter-spacing: 0.5px; }
+    .total-salary { color: #111; font-weight: 800; font-size: 16px; }
+    
+    /* 시급 수정 배지 */
+    .wage-badge {
+        background: #fff; border: 1px solid #eee; color: #495057;
+        padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600;
+        cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .wage-badge:hover { border-color: #2962ff; color: #2962ff; }
+
+    /* 직원 이름 링크 */
+    .emp-link {
+        text-decoration: none; color: #333; transition: 0.2s; display: inline-flex; align-items: center;
+    }
+    .emp-link:hover { color: #2962ff; }
+
+    /* 모달 스타일 */
+    .modal-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        display: none; justify-content: center; align-items: center; z-index: 9999;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+        background: white; width: 380px; padding: 30px; border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .modal-input {
+        width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px;
+        margin-top: 8px; margin-bottom: 20px; font-size: 16px; font-weight: 600; text-align: right;
+    }
+    .btn-save {
+        width: 100%; padding: 14px; background: #2962ff; color: white;
+        border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 16px;
+    }
+    .btn-close-modal {
+        float: right; background: none; border: none; font-size: 20px; cursor: pointer; color: #999;
+    }
+    
+    /* 추천 시급 칩 */
+    .chip-group { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .wage-chip {
+        background: #fff; border: 1px solid #ddd; color: #666;
+        padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .wage-chip:hover { border-color: #2962ff; color: #2962ff; background: #f0f7ff; }
+
+</style>
+
+<div class="container mt-5">
+    <div class="wage-card">
+        
+        <div class="header-area">
+            <div class="title-group">
+                <h2 class="page-title">월 급여 내역</h2>
+            </div>
+            
+            <div class="date-nav">
+                <button class="nav-arrow-btn" onclick="moveMonth(-1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <form id="dateForm" method="GET" style="margin:0; position:relative;">
+                    <div class="date-text">
+                        <span>{{ year }}년 {{ month }}월</span>
+                    </div>
+                    <input type="date" name="date" id="dateInput" class="date-input-hidden" 
+                           style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;"
+                           value="{{ year }}-{{ month|stringformat:'02d' }}-01" 
+                           onchange="document.getElementById('dateForm').submit()">
+                </form>
+
+                <button class="nav-arrow-btn" onclick="moveMonth(1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th width="20%">직원 이름</th>
+                    <th width="15%">시급</th>
+                    <th width="20%">근무 시간</th>
+                    <th width="20%">주휴 수당</th>
+                    <th width="25%">총 월급</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in salary_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'wages:check' %}?employee_id={{ item.employee.id }}" class="emp-link">
+                            {{ item.employee.full_name }}
+                            <span class="dot-custom" style="background-color: {{ item.employee.color_tag|default:'#ccc' }};"></span>
+                        </a>
+                    </td>
+
+                    <td>
+                        <div class="wage-badge" onclick="openWageModal('{{ item.employee.id }}', '{{ item.employee.full_name }}', '{{ item.hourly_wage }}')">
+                            ￦ {{ item.hourly_wage|intcomma }}
+                        </div>
+                    </td>
+
+                    <td>{{ item.total_hour }}시간  {{ item.total_minute }} 분</td>
+
+                    <td class="money-text" style="color: #2e7d32;">
+                        + {{ item.weekly_holiday_bonus|intcomma }}
+                    </td>
+
+                    <td class="money-text total-salary">
+                        {{ item.before_tax_monthly_salary|intcomma }}원
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 100px 0; color: #bbb;">
+                        해당 월의 급여 데이터가 없습니다.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="wageModal" class="modal-overlay">
+    <div class="modal-box">
+        <button onclick="closeWageModal()" class="btn-close-modal"><i class="bi bi-x-lg"></i></button>
+        
+        <h3 style="font-size:20px; font-weight:800; margin-bottom:4px;">시급 변경</h3>
+        <p style="font-size:14px; color:#666; margin-bottom:20px;">
+            <span id="modalEmpName" style="color:#2962ff; font-weight:700;"></span>님의 시급을 수정합니다.
+        </p>
+        
+        <form id="wageForm" method="POST">
+            {% csrf_token %}
+            <label style="font-size:13px; color:#888; font-weight:700;">변경할 시급 (원)</label>
+            <input type="number" name="new_hourly_wage" id="modalWageInput" class="modal-input" required>
+
+            <div class="chip-group">
+                {% for choice in wage_choices %}
+                <span class="wage-chip" onclick="setWageValue('{{ choice }}')">{{ choice|intcomma }}원</span>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn-save">변경 저장</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // 1. 월 이동
+    function moveMonth(offset) {
+        const dateInput = document.getElementById('dateInput');
+        const currentDate = new Date(dateInput.value); 
+        currentDate.setMonth(currentDate.getMonth() + offset);
+        
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const newDateStr = `${year}-${month}-01`;
+        
+        window.location.search = '?date=' + newDateStr;
+    }
+
+    // 2. 모달 열기
+    function openWageModal(empId, empName, currentWage) {
+        const modal = document.getElementById('wageModal');
+        const form = document.getElementById('wageForm');
+        
+        document.getElementById('modalEmpName').innerText = empName;
+        document.getElementById('modalWageInput').value = currentWage;
+        
+        // 현재 페이지의 검색 조건 유지 (date 등)
+        const currentQuery = window.location.search; 
+        form.action = `/wages/change/${empId}/${currentQuery}`;
+        
+        modal.classList.add('active');
+    }
+
+    // 3. 모달 닫기
+    function closeWageModal() {
+        document.getElementById('wageModal').classList.remove('active');
+    }
+    
+    document.getElementById('wageModal').addEventListener('click', function(e) {
+        if (e.target === this) closeWageModal();
+    });
+
+    // 4. 추천 시급 설정
+    function setWageValue(value) {
+        document.getElementById('modalWageInput').value = value;
+    }
+</script>
+
+{% endblock %}
