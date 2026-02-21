@@ -41,7 +41,10 @@ Starting development server at http://(설정된 ip 주소)/
 
 
 ---
-# 5. 깃허브 업로드
+# 5. 기타
+
+깃허브 업로드 
+
 ```
 $ git init
 $ git add .
