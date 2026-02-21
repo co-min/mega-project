@@ -38,3 +38,16 @@ python manage.py runserver
 # 4. 웹 이동
 Starting development server at http://(설정된 ip 주소)/
 위와 같이 뜨면 ctrl + 마우스 클릭을 통해 웹으로 이동할 수 있습니다. 
+
+
+---
+# 5. 깃허브 업로드
+```
+$ git init
+$ git add .
+$ git commit -m "first commit"
+$ git branch -M main
+$ git remote add origin https://github.com/주소.git
+$ push -u origin main
+
+```
