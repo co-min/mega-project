@@ -9,7 +9,6 @@ class Status(models.TextChoices):
     FINISHED = 'finished', _('퇴근')
     ABSENT = 'absent', _('결근')
 
-
 # 실제 출퇴근 기록
 class AttendanceRecord(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='attendance_records')
@@ -30,7 +29,3 @@ class AttendanceRecord(models.Model):
         
     def __str__(self):
         return f"{self.employee.full_name} - {self.date}"
-
-
-
-

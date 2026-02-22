@@ -1,19 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from datetime import datetime, date
-from attendances.services import get_daily_attendance_status
 from employees.models import Employee
 from .models import AttendanceRecord
 from .models import Status
 
 # 일일 출퇴근 현황 관리용
+@login_required
 def attendance_view(request):
+    store = request.user.store
     today = date.today()
     filter_date = request.GET.get('date', today.strftime('%Y-%m-%d'))
     filter_date_obj = datetime.strptime(filter_date, '%Y-%m-%d').date()
 
     attendance_records = AttendanceRecord.objects.filter(
-        date=filter_date_obj
+        date=filter_date_obj,
+        employee__store = store,
     ).select_related('employee')
 
     records = []
@@ -37,9 +40,10 @@ def attendance_view(request):
 
     return render(request, "attendance/attendance_page.html", context)
 
-"""POS에서 출/퇴근 찍었을 때, 처리하는 로직 (PIN 입력 화면)"""
-# 출퇴근 기록
+# 출퇴근 기록 (POS)
+@login_required
 def attendance_checkin_and_out_view(request):
+    store = request.user.store
     if request.method == 'POST':
         pin = request.POST.get('pin')
         today = date.today()
@@ -47,7 +51,8 @@ def attendance_checkin_and_out_view(request):
         try:
             employee = Employee.objects.get(
                 attendance_pin=pin, 
-                is_active=True
+                is_active=True,
+                store = store
             )
             record = AttendanceRecord.objects.filter(
                 employee=employee,
@@ -78,12 +83,14 @@ def attendance_checkin_and_out_view(request):
     return render(request, 'attendance/attendance_checkin.html')
 
 # 관리자 -> 출퇴근 시간 직접 수정
+@login_required
 def admin_update_attendance_view(request):
+    store = request.user.store
     if request.method=='POST':
         attendance_id = request.POST.get("attendance_id")
         new_check_in = request.POST.get('new_check_in')
         new_check_out = request.POST.get('new_check_out')
-        record = get_object_or_404(AttendanceRecord, id=attendance_id)
+        record = get_object_or_404(AttendanceRecord, id=attendance_id, employee__store = store)
     
         record.check_in = datetime.strptime(new_check_in, "%H:%M").time()
         record.check_out = datetime.strptime(new_check_out, "%H:%M").time()
@@ -95,8 +102,10 @@ def admin_update_attendance_view(request):
         return redirect('attendances:attendances')
     return redirect('attendances:attendances')
 
-# 휴게시간 추가하는 함수
+# 휴게시간 추가
+@login_required
 def add_break_time_view(request):
+    store = request.user.store
     employee_id = request.POST.get('employee_id')
     date_str = request.POST.get('date')
     break_time = request.POST.get('breaktime')
@@ -106,7 +115,7 @@ def add_break_time_view(request):
     else:
         breaktime = 0
      
-    employee = Employee.objects.get(pk=employee_id)
+    employee = Employee.objects.get(pk=employee_id, store=store)
     work_date = datetime.strptime(date_str, '%Y-%m-%d').date()
 
     attendance, created = AttendanceRecord.objects.get_or_create(

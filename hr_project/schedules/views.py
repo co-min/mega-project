@@ -1,10 +1,10 @@
-from django.shortcuts import redirect
 from datetime import date
+from django.contrib.auth.decorators import login_required
 from .models import Schedule, DayWorkPlan
 from schedules.constants import TIME_MAP
 
 # monthly 스케줄 생성
-def generate_monthly_schedule(year, month, employee=None):
+def generate_monthly_schedule(store, year, month, employee=None):
   for day in range(1,32):
     try: 
       current_date = date (year, month, day)
@@ -14,6 +14,7 @@ def generate_monthly_schedule(year, month, employee=None):
     weekday= current_date.weekday()
 
     schedules = Schedule.objects.filter(
+      employee__store=store,
       work_day= weekday,
       is_active = True,
       employee__is_active = True,

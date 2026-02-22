@@ -42,7 +42,7 @@
     }
     .nav-arrow-btn:hover { background: #f8f9fa; border-color: #ddd; color: #111; }
 
-    /* 날짜 표시 텍스트 (이미지 스타일) */
+    /* 날짜 표시 텍스트 */
     .date-text {
         font-size: 18px; font-weight: 700; color: #2962ff; cursor: pointer;
         display: flex; align-items: center; gap: 6px;
@@ -59,7 +59,7 @@
         border-bottom: 1px solid #f0f0f0; padding-bottom: 20px;
         text-align: right;
     }
-    .table-custom th:first-child { text-align: left; padding-left: 10px; } /* 이름 */
+    .table-custom th:first-child { text-align: left; padding-left: 10px; }
     
     .table-custom td {
         padding: 24px 0; border-bottom: 1px solid #f8f9fa;
@@ -166,7 +166,7 @@
                 {% for item in salary_list %}
                 <tr>
                     <td>
-                        <a href="{% url 'wages:check' %}?employee_id={{ item.employee.id }}" class="emp-link">
+                        <a href="{% url 'wages:check' %}?employee_id={{ item.employee.id }}&year={{ year }}&month={{ month }}" class="emp-link">
                             {{ item.employee.full_name }}
                             <span class="dot-custom" style="background-color: {{ item.employee.color_tag|default:'#ccc' }};"></span>
                         </a>
@@ -178,14 +178,14 @@
                         </div>
                     </td>
 
-                    <td>{{ item.total_hour }}시간  {{ item.total_minute }} 분</td>
+                    <td>{{ item.total_hour }}시간 {{ item.total_minute }}분</td>
 
                     <td class="money-text" style="color: #2e7d32;">
-                        + {{ item.weekly_holiday_bonus|intcomma }}
+                        + {{ item.weekly_bonus|intcomma }}
                     </td>
 
                     <td class="money-text total-salary">
-                        {{ item.before_tax_monthly_salary|intcomma }}원
+                        {{ item.before_tax|intcomma }}원
                     </td>
                 </tr>
                 {% empty %}
@@ -226,7 +226,6 @@
 </div>
 
 <script>
-    // 1. 월 이동
     function moveMonth(offset) {
         const dateInput = document.getElementById('dateInput');
         const currentDate = new Date(dateInput.value); 
@@ -239,7 +238,6 @@
         window.location.search = '?date=' + newDateStr;
     }
 
-    // 2. 모달 열기
     function openWageModal(empId, empName, currentWage) {
         const modal = document.getElementById('wageModal');
         const form = document.getElementById('wageForm');
@@ -247,14 +245,12 @@
         document.getElementById('modalEmpName').innerText = empName;
         document.getElementById('modalWageInput').value = currentWage;
         
-        // 현재 페이지의 검색 조건 유지 (date 등)
         const currentQuery = window.location.search; 
-        form.action = `/wages/change/${empId}/${currentQuery}`;
+        form.action = '/wages/change/' + empId + '/' + currentQuery;
         
         modal.classList.add('active');
     }
 
-    // 3. 모달 닫기
     function closeWageModal() {
         document.getElementById('wageModal').classList.remove('active');
     }
@@ -263,7 +259,6 @@
         if (e.target === this) closeWageModal();
     });
 
-    // 4. 추천 시급 설정
     function setWageValue(value) {
         document.getElementById('modalWageInput').value = value;
     }

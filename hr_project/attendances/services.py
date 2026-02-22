@@ -1,6 +1,5 @@
 from datetime import date, datetime
 from schedules.models import DayWorkPlan
-from employees.models import Employee
 from attendances.models import AttendanceRecord, Status
 import calendar
 
@@ -107,8 +106,6 @@ def daily_calendar_display_date(target_date, employee):
         'breaktime' : item['breaktime'],
         'work_hours':item['work_hours']
     }
-
-
 
 # 한 칸 -> 전체 캘린더로 매핑
 def get_monthly_attendance_calendar(year: int, month: int, employee):

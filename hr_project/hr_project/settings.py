@@ -40,10 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'hr_project.apps.HrProjectConfig',
     'employees',
-    'dashboards',
     'attendances',
     'schedules',
     'wages',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -79,14 +79,18 @@ WSGI_APPLICATION = 'hr_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import environ
+env = environ.Env()
+environ.Env.read_env(BASE_DIR / '.env')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mega_project_db',
-        'USER': 'admin',
-        'PASSWORD': 'mega1234',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
     }
 }
 
@@ -131,3 +135,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Media files (업로드된 이미지 등)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'

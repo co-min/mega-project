@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-
 class UserProfile(models.Model):
     """사용자 프로필 확장"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -12,27 +11,18 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.role}"
 
-
 class Store(models.Model):
     """매장 모델"""
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stores')
+    owner = models.OneToOneField(User, on_delete = models.CASCADE, related_name = 'store')
     name = models.CharField(max_length=100)
-    address = models.CharField(max_length=255)
-    is_primary = models.BooleanField(default=False)
+    address = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        ordering = ['-is_primary', '-created_at']
+        ordering = ['-created_at']
     
     def __str__(self):
         return self.name
-    
-    def save(self, *args, **kwargs):
-        # 대표 매장으로 설정 시 다른 매장들의 is_primary를 False로
-        if self.is_primary:
-            Store.objects.filter(owner=self.owner, is_primary=True).update(is_primary=False)
-        super().save(*args, **kwargs)
-
 
 class UserSettings(models.Model):
     """사용자 설정"""
