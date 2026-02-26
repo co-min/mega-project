@@ -4,49 +4,111 @@
 {% block content %}
 <style>
     .edit-card {
-        max-width: 500px; margin: 60px auto; padding: 40px;
-        background: white; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        max-width: 500px;
+        margin: 60px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     }
+    
+    .edit-title {
+        font-weight: 800;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .section-title {
+        margin-bottom: 15px;
+        color: #2563eb;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    
+    .section-divider {
+        border-top: 1px solid #eee;
+        margin: 30px 0;
+    }
+    
     .edit-input {
-        width: 100%; padding: 12px 14px; border: 1px solid #ddd; border-radius: 8px; 
-        margin-top: 6px; margin-bottom: 20px; font-size: 15px; box-sizing: border-box;
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-top: 6px;
+        margin-bottom: 20px;
+        font-size: 15px;
+        box-sizing: border-box;
     }
-    .edit-input:focus { border-color: #2563eb; outline: none; }
+    
+    .edit-input:focus {
+        border-color: #2563eb;
+        outline: none;
+    }
+    
+    .edit-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #555;
+    }
+    
     .btn-save {
-        width: 100%; padding: 14px; background: #2563eb; color: white; border: none; 
-        border-radius: 8px; font-weight: 700; font-size: 16px; cursor: pointer;
+        width: 100%;
+        padding: 14px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.2s;
     }
+    
+    .btn-save:hover {
+        background: #1e40af;
+    }
+    
     .btn-cancel {
-        display: block; text-align: center; margin-top: 15px; color: #64748b; 
-        text-decoration: none; font-size: 14px; font-weight: 600;
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .btn-cancel:hover {
+        color: #334155;
     }
 </style>
 
 <div class="edit-card">
-    <h2 style="font-weight: 800; margin-bottom: 30px; text-align: center;">프로필 수정</h2>
+    <h2 class="edit-title">프로필 수정</h2>
     
     <form method="POST">
         {% csrf_token %}
         
-        <h4 style="margin-bottom: 15px; color: #2563eb; font-size: 14px;">기본 정보</h4>
+        <h4 class="section-title">기본 정보</h4>
         <div>
-            <label style="font-size: 13px; font-weight: 700; color: #555;">이름 (점장명)</label>
+            <label class="edit-label">이름 (점장명)</label>
             {{ form.username }}
         </div>
         <div>
-            <label style="font-size: 13px; font-weight: 700; color: #555;">이메일</label>
+            <label class="edit-label">이메일</label>
             {{ form.email }}
         </div>
 
-        <div style="border-top: 1px solid #eee; margin: 30px 0;"></div>
+        <div class="section-divider"></div>
 
-        <h4 style="margin-bottom: 15px; color: #2563eb; font-size: 14px;">매장 정보</h4>
+        <h4 class="section-title">매장 정보</h4>
         <div>
-            <label style="font-size: 13px; font-weight: 700; color: #555;">매장 이름</label>
+            <label class="edit-label">매장 이름</label>
             {{ form.store_name }}
         </div>
         <div>
-            <label style="font-size: 13px; font-weight: 700; color: #555;">매장 주소</label>
+            <label class="edit-label">매장 주소</label>
             {{ form.address }}
         </div>
 
@@ -56,7 +118,6 @@
 </div>
 
 <script>
-    // 폼 input 태그에 스타일 클래스 일괄 적용
     document.querySelectorAll('.edit-card input').forEach(input => {
         input.classList.add('edit-input');
     });
