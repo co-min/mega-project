@@ -86,6 +86,54 @@
     gap: 12px;
   }
 
+  .color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+  }
+
+  .palette-color {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .palette-color:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+
+  .palette-color.selected {
+    border-color: #1f2937;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+
+  .palette-color .color-check {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .palette-color.selected .color-check {
+    opacity: 1;
+  }
+
   .color-preview-group {
     display: flex;
     align-items: center;
@@ -308,15 +356,48 @@
       <div class="form-field span-2">
         <label>직원 구분 색상 *</label>
         <div class="color-picker-section">
+          <!-- 색상 팔레트 -->
+          <div class="color-palette">
+            <button type="button" class="palette-color" data-color="#ef4444" style="background: #ef4444;" title="빨강">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#f97316" style="background: #f97316;" title="주황">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#eab308" style="background: #eab308;" title="노랑">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#22c55e" style="background: #22c55e;" title="초록">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#06b6d4" style="background: #06b6d4;" title="청록">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#3b82f6" style="background: #3b82f6;" title="파랑">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#8b5cf6" style="background: #8b5cf6;" title="보라">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#ec4899" style="background: #ec4899;" title="핑크">
+              <span class="color-check">✓</span>
+            </button>
+            <button type="button" class="palette-color" data-color="#a855f7" style="background: #b3f542;" title="연두">
+              <span class="color-check">✓</span>
+            </button>
+          </div>
+          
+          <!-- 커스텀 색상 선택 -->
           <div class="color-preview-group">
+            <span style="font-size: 13px; color: #6b7280; font-weight: 600;">또는 직접 선택:</span>
             <button class="color-preview-btn" type="button" id="colorPickerBtn">
               <span class="color-icon">🎨</span>
             </button>
-            <input type="color" name="color_tag" id="colorInput" value="{{ employee.color_tag|default:'#22c55e' }}" />
+            <input type="color" name="color_tag" id="colorInput" value="{{ employee.color_tag|default:'#22c55e' }}" style="display: none;" />
           </div>
+          
           <span class="color-hint">스케줄 및 출석에서 직원을 구분하는 색상입니다</span>
         </div>
-        <input type="hidden" name="favorite_color" value="#2563eb" />
       </div>
     </div>
   </div>
@@ -333,9 +414,7 @@
   const colorInput = document.getElementById('colorInput');
   const pinInput = form.querySelector('input[name="attendance_pin"]');
   const pinConfirmInput = form.querySelector('input[name="pin_confirm"]');
-  const workdayLable = document.getElementById('workdayLable');
-  const worktimeLable = document.getElementById('worktimeLable');
-  const worktypeLable = document.getElementById('worktypeLable');
+  const paletteColors = document.querySelectorAll('.palette-color');
 
   // PIN 확인
   function validatePINOnSubmit(e) {
@@ -347,7 +426,7 @@
     }
   }
 
-   function openColorPicker(e) {
+  function openColorPicker(e) {
     e.preventDefault();
     e.stopPropagation();
     colorInput.click();
@@ -357,10 +436,35 @@
     colorBtn.style.background = value;
     colorBtn.style.color = value;
     colorBtn.style.border = '2px solid ' + value;
+    colorInput.value = value;
   }
 
-  // 초기 색상 적용
-  applySelectedColor(colorInput.value);
+  function selectPaletteColor(color) {
+    // 모든 팔레트 색상에서 selected 제거
+    paletteColors.forEach(btn => btn.classList.remove('selected'));
+    
+    // 선택된 색상에 selected 추가
+    const selectedBtn = document.querySelector(`.palette-color[data-color="${color}"]`);
+    if (selectedBtn) {
+      selectedBtn.classList.add('selected');
+    }
+    
+    // 색상 적용
+    applySelectedColor(color);
+  }
+
+  // 팔레트 색상 버튼 클릭 이벤트
+  paletteColors.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const color = btn.dataset.color;
+      selectPaletteColor(color);
+    });
+  });
+
+  // 초기 색상 적용 (기존 색상이거나 기본값)
+  const initialColor = colorInput.value;
+  selectPaletteColor(initialColor);
   
   // 색상 버튼 클릭 시 색상 피커 열기
   colorBtn.addEventListener('click', openColorPicker);
@@ -368,16 +472,17 @@
   // 색상 피커 변경 시 버튼 색상 업데이트
   colorInput.addEventListener('input', (ev) => {
     applySelectedColor(ev.target.value);
+    // 팔레트에서 선택 해제
+    paletteColors.forEach(btn => btn.classList.remove('selected'));
   });
   
   // 색상 피커 직접 변경 시에도 버튼 업데이트
   colorInput.addEventListener('change', (ev) => {
     applySelectedColor(ev.target.value);
+    // 팔레트에서 선택 해제
+    paletteColors.forEach(btn => btn.classList.remove('selected'));
   });
   
   form.addEventListener('submit', validatePINOnSubmit);
-
-  // 초기 색상 적용
-  applySelectedColor(colorInput.value);
 </script>
 {% endblock %}
