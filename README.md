@@ -25,13 +25,14 @@ deactivate
 
 # 2. 프로젝트의 주요 의존성 패키지를 설치해주세요. (가상환경 활성화 후, 설치를 진행해주세요.)
 
+경로 이동
+cd hr/project
+
 의존성 패키지 설치 코드
 ---
 pip install -r requirements.txt
 
-# 3. ../hr_project 경로 안에서 다음 명령어를 실행주세요.
-
-로컬 서버 실행 코드
+# 3. 로컬 서버 실행 코드
 ---
 python manage.py runserver
 
