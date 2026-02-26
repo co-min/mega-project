@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}설정 · Mega Coffee HR{% endblock %}
+{% block nav_setting_active %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>설정</h1>
+</div>
+
+{% if messages %}
+<div style="margin-bottom: 1rem;">
+  {% for message in messages %}
+  <div style="padding: 0.75rem 1rem; background: #dcfce7; color: #166534; border-radius: 8px; border: 1px solid #86efac;">
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  
+  <div class="card">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <div style="width: 40px; height: 40px; background: #dbeafe; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">🔔</div>
+      <h2 style="margin: 0;">알림 설정</h2>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="email_notifications" {% if settings.email_notifications %}checked{% endif %}>
+          <span>이메일 알림 수신</span>
+        </label>
+      </div>
+      <div class="form-field">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="push_notifications" {% if settings.push_notifications %}checked{% endif %}>
+          <span>푸시 알림 수신</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <div style="width: 40px; height: 40px; background: #dbeafe; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">⚙️</div>
+      <h2 style="margin: 0;">기본 설정</h2>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>언어</label>
+        <select name="language">
+          <option value="ko" {% if settings.language == 'ko' %}selected{% endif %}>한국어</option>
+          <option value="en" {% if settings.language == 'en' %}selected{% endif %}>English</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>테마</label>
+        <select name="theme">
+          <option value="light" {% if settings.theme == 'light' %}selected{% endif %}>라이트</option>
+          <option value="dark" {% if settings.theme == 'dark' %}selected{% endif %}>다크</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <div style="width: 40px; height: 40px; background: #dbeafe; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">🔐</div>
+      <h2 style="margin: 0;">보안</h2>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>비밀번호</label>
+        <button type="button" class="btn primary" style="width: 100%;" onclick="alert('비밀번호 변경 기능 준비중입니다.')">변경하기</button>
+      </div>
+      <div class="form-field">
+        <label>2단계 인증</label>
+        <button type="button" class="btn" style="width: 100%;" onclick="alert('2단계 인증 설정 기능 준비중입니다.')">설정하기</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+    <button type="button" class="btn" style="background: #6b7280; color: white;" onclick="location.reload()">취소</button>
+    <button type="submit" class="btn primary">저장</button>
+  </div>
+</form>
+
+{% endblock %}
