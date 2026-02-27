@@ -1,86 +1,177 @@
-{% extends 'base.html' %}
-
-{% block title %}점주 로그인 · Mega Coffee HR{% endblock %}
-
-{% block content %}
-<style>
-    .auth-card {
-        max-width: 400px;
-        margin: 100px auto;
-        padding: 40px;
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
-    }
-    
-    .auth-title {
-        text-align: center;
-        font-weight: 800;
-        margin-bottom: 30px;
-    }
-    
-    .auth-input {
-        width: 100%;
-        padding: 14px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        margin-top: 8px;
-        margin-bottom: 20px;
-        font-size: 15px;
-        box-sizing: border-box;
-    }
-    
-    .auth-input:focus {
-        border-color: #2962ff;
-        outline: none;
-    }
-    
-    .auth-btn {
-        width: 100%;
-        padding: 15px;
-        background: #2962ff;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-weight: 800;
-        font-size: 16px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-    
-    .auth-btn:hover {
-        background: #1e4bd8;
-    }
-    
-    .auth-label {
-        font-size: 13px;
-        font-weight: 700;
-        color: #555;
-    }
-    
-    .auth-error {
-        color: #ef4444;
-        font-size: 13px;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .auth-footer {
-        text-align: center;
-        margin-top: 25px;
-        font-size: 14px;
-        color: #666;
-    }
-    
-    .auth-link {
-        color: #2962ff;
-        font-weight: 700;
-        text-decoration: none;
-    }
-</style>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>점주 로그인 · Mega Coffee HR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #FFC700;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -100px;
+            right: -100px;
+        }
+        
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+            bottom: -50px;
+            left: -50px;
+        }
+        
+        .auth-card {
+            max-width: 400px;
+            width: 90%;
+            padding: 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #FFC700 0%, #000 100%);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .brand-logo {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .brand-logo span {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFC700 0%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+        
+        .auth-title {
+            text-align: center;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .auth-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        
+        .auth-input:focus {
+            border-color: #FFC700;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 199, 0, 0.1);
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            color: #FFC700;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            letter-spacing: 0.5px;
+        }
+        
+        .auth-btn:hover {
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .auth-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #555;
+        }
+        
+        .auth-error {
+            color: #ef4444;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            background: #fee;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .auth-link {
+            color: #000;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 2px 8px;
+            background: #FFC700;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        
+        .auth-link:hover {
+            background: #FFD700;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
 
 <div class="auth-card">
+    <div class="brand-logo">
+        <span>MEGA COFFEE</span>
+    </div>
     <h2 class="auth-title">매장 관리자 로그인</h2>
     
     <form method="POST">
@@ -109,4 +200,5 @@
         아직 계정이 없으신가요? <a href="{% url 'accounts:signup' %}" class="auth-link">회원가입</a>
     </div>
 </div>
-{% endblock %}
+</body>
+</html>

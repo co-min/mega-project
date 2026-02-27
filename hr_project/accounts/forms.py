@@ -5,14 +5,22 @@ from accounts.models import UserProfile, Store
 
 class SignUpForm(UserCreationForm):
     # User
-    email = forms.EmailField(required = True)
+    email = forms.EmailField(label="이메일", required = True)
     # Store
-    store_name = forms.CharField(max_length=100, required = True)
-    address = forms.CharField(max_length=255)
+    store_name = forms.CharField(label="매장 이름", max_length=100, required = True)
+    address = forms.CharField(label="매장 주소", max_length=255)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+        labels = {
+            'username': '아이디',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].label = '비밀번호'
+        self.fields['password2'].label = '비밀번호 확인'
 
     def save(self, commit=True):
         user = super().save(commit=False)
