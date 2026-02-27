@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from hr_project.models import UserProfile, Store
+from accounts.models import UserProfile, Store
 
 class SignUpForm(UserCreationForm):
     # User

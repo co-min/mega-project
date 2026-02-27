@@ -5,9 +5,11 @@ from datetime import datetime, date
 from employees.models import Employee
 from .models import AttendanceRecord
 from .models import Status
+from accounts.decorators import store_required
 
 # 일일 출퇴근 현황 관리용
 @login_required
+@store_required
 def attendance_view(request):
     store = request.user.store
     today = date.today()
@@ -42,6 +44,7 @@ def attendance_view(request):
 
 # 출퇴근 기록 (POS)
 @login_required
+@store_required
 def attendance_checkin_and_out_view(request):
     store = request.user.store
     if request.method == 'POST':
@@ -84,6 +87,7 @@ def attendance_checkin_and_out_view(request):
 
 # 관리자 -> 출퇴근 시간 직접 수정
 @login_required
+@store_required
 def admin_update_attendance_view(request):
     store = request.user.store
     if request.method=='POST':
@@ -104,6 +108,7 @@ def admin_update_attendance_view(request):
 
 # 휴게시간 추가
 @login_required
+@store_required
 def add_break_time_view(request):
     store = request.user.store
     employee_id = request.POST.get('employee_id')

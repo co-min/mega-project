@@ -196,7 +196,11 @@
                 <span class="mc-label">근무 시간</span>
                 <span class="mc-value">
                     {% with emp.schedules.first as first_schedule %}
-                        {{ first_schedule.get_work_time_display|default:"-" }}
+                        {% if first_schedule and first_schedule.start_time and first_schedule.end_time %}
+                            {{ first_schedule.start_time|time:"H:i" }} ~ {{ first_schedule.end_time|time:"H:i" }}
+                        {% else %}
+                            -
+                        {% endif %}
                     {% endwith %}
                 </span>
             </div>

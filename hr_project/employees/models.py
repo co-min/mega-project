@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
-from hr_project.models import Store
+from accounts.models import Store
 
 color_validator = RegexValidator(r'^#(?:[0-9a-fA-F]{3}){1,2}$', _('유효한 HEX 색상이어야 합니다.'))
 pin_validator = RegexValidator(r'^\d{4}$', _('출석 번호는 4자리 숫자여야 합니다.'))

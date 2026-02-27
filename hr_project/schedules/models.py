@@ -1,25 +1,15 @@
 from django.db import models
 from employees.models import Employee
-from schedules.constants import WORK_TIME, WORK_TYPE, WEEKDAYS, TIME_MAP
+from schedules.constants import WORK_TYPE, WEEKDAYS
 
 # 근무 스케줄 템플릿
 class Schedule(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='schedules')
     work_type = models.IntegerField(choices=WORK_TYPE)
     work_day = models.IntegerField(choices=WEEKDAYS)
-    work_time = models.IntegerField(choices=WORK_TIME)
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
     is_active = models.BooleanField(default = True)
-
-    def save(self, *args, **kwargs):
-        # start_time, end_time 을 map과 대응 후 저장
-        if (self.work_time is not None 
-            and self.work_time in TIME_MAP
-            and not (self.start_time and self.end_time)
-        ): # NULL 방지
-            self.start_time, self.end_time = TIME_MAP[self.work_time]
-        super().save(*args, **kwargs)
 
     def __str__(self):
         time_range = (

@@ -1,15 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.urls import reverse
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, date
+from datetime import date
 import calendar
 from employees.models import Employee
-from wages.models import Wage
 from wages.services import get_weekly_holiday_map, calculate_monthly_salary
 from attendances.services import get_monthly_attendance_calendar
+from accounts.decorators import store_required
 
 @login_required
+@store_required
 def monthly_wage_view(request):
     store = request.user.store
     today = date.today()
@@ -47,35 +46,7 @@ def monthly_wage_view(request):
     return render(request, "wage/wages.html", context)
 
 @login_required
-# 시급 수정
-def change_hourly_wage_view(request, employee_id):
-    employee = get_object_or_404(Employee, pk=employee_id,store = request.user.store)
-    today = date.today()
-
-    filter_date = request.GET.get('date', today.strftime('%Y-%m-%d'))
-    filter_date_obj = datetime.strptime(filter_date, '%Y-%m-%d').date()
-
-    year = filter_date_obj.year
-    month = filter_date_obj.month
-    
-    if request.method == 'POST':
-      new_hourly_wage = request.POST.get('new_hourly_wage')
-      # 변경한 시급이 적용될 날짜 (변경한 날짜의 해당 월 부터)
-      adj_start_date = date(year, month, 1)
-      if new_hourly_wage:
-        Wage.objects.update_or_create(
-          employee=employee,
-          effective_start_date=adj_start_date,
-          defaults={
-              'hourly_wage' : int(new_hourly_wage),
-          }
-        )
-        messages.success(request, f"{employee.full_name}님의 시급이 변경되었습니다.")
-        
-      return redirect(f"{reverse('wages:wages')}?date={filter_date}")
-    return redirect(f"{reverse('wages:wages')}?date={filter_date}")
-  
-@login_required
+@store_required
 # 직원 개인 캘린더
 def check_wage_view(request):
     employee_id = request.GET.get('employee_id')

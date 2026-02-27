@@ -292,52 +292,64 @@
 
   <!-- 근무 정보 섹션 -->
   <div class="form-section">
-    <h3 class="section-title">💼 근무 정보</h3>
-    <div class="form-grid">
-      <div class="form-field span-2">
-      <!-- 근무 유형 -->
+  <h3 class="section-title">💼 근무 정보</h3>
+  <div class="form-grid">
+    
+    <div class="form-field span-2">
       <label>
-        <span id ="worktypeLable"> 근무 유형 *</span>
+        <span id="worktypeLable">근무 유형 *</span>
       </label>
-      <select name = "work_type" required>
-        <option value =""> 근무 유형을 선택하세요. </option>
+      <select name="work_type" required>
+        <option value="">근무 유형을 선택하세요.</option>
         {% for value, label in WORK_TYPE %}
-          <option value = "{{value}}" {% if work_type == value %}  {% endif %}> 
+          <option value="{{ value }}" {% if work_type == value %}selected{% endif %}> 
             {{ label }}
           </option>
         {% endfor %}
-        </select>
-      </div>
-      <!-- 근무 요일 -->
-      <div class="form-field span-2">
-        <label>
-          <span id ="workdayLable"> 근무 요일 *</span></label>
-          <div class="checkbox-group">
-            {% for value, label in WEEKDAYS %}
-              <label style = "margin-right:10px;">
-                <input type ="checkbox" name ="work_day" value ={{value}}>
-                  {%if value in work_day %}checked{% endif %}
-                {{label}}
-              </label>
-            {% endfor %}
-          </div>
-      </div>
-      <!--근무 시간 -->
-      <div class="form-field span-2">
-        <label>
-          <span id = "worktimeLable"> 근무 시간 *</span></label>
-            <select name = "work_time" required>
-              <option value="">근무 시간을 선택하세요. </option>
-              {% for value, label in WORK_TIME %}
-              <option value = "{{ value }}">
-                {% if work_time == value %} selected {% endif %}
-                {{label}}
-              </option>
-              {% endfor %}
-            </select>
+      </select>
+    </div>
+
+    <div class="form-field span-2">
+      <label>
+        <span id="workdayLable">근무 요일 *</span>
+      </label>
+      <div class="checkbox-group">
+        {% for value, label in WEEKDAYS %}
+          <label style="margin-right:10px;">
+            <input type="checkbox" name="work_day" value="{{ value }}" {% if value in work_day %}checked{% endif %}>
+            {{ label }}
+          </label>
+        {% endfor %}
       </div>
     </div>
+
+    <div class="form-field span-2">
+      <label>
+        <span id="worktimeLable">근무 시간 *</span>
+      </label>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="time" name="start_time" class="form-control" required value="{{ start_time|default:'' }}">
+        <span>~</span>
+        <input type="time" name="end_time" class="form-control" required value="{{ end_time|default:'' }}">
+      </div>
+    </div>
+
+    <div class="form-field span-2">
+      <label>
+        <span id="wageLable">시급 *</span>
+      </label>
+      <select name="hourly_wage" required>
+        <option value="">시급을 선택하세요.</option>
+        {% for wage in wage_options %}
+          <option value="{{ wage }}" {% if current_wage == wage %}selected{% endif %}>
+            {{ wage }}원
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
   </div>
+</div>
 
   <!-- 시스템 설정 섹션 -->
   <div class="form-section">
