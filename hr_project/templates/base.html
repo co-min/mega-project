@@ -71,20 +71,20 @@
         {% if user.is_authenticated %}
           <a href="{% url 'accounts:profile' %}" class="menu-item {% block nav_profile_active %}{% endblock %}">
             <span>👤</span>
-            <span>Profile</span>
+            <span>프로필</span>
           </a>
-          <a href="{% url 'accounts:profile' %}" class="menu-item {% block nav_setting_active %}{% endblock %}">
-            <span>⚙️</span>
-            <span>Setting</span>
+          <a href="{% url 'accounts:logout' %}" class="menu-item">
+            <span>🚪</span>
+            <span>로그아웃</span>
           </a>
         {% else %}
           <a href="{% url 'accounts:login' %}" class="menu-item">
             <span>🔑</span>
-            <span>Login</span>
+            <span>로그인</span>
           </a>
           <a href="{% url 'accounts:signup' %}" class="menu-item signup-btn">
             <span>✨</span>
-            <span>Sign Up</span>
+            <span>회원가입</span>
           </a>
         {% endif %}
       </div>

@@ -132,11 +132,18 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Media files (업로드된 이미지 등)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-
+# 로그인 관련 설정
+# LOGIN_URL: @login_required 데코레이터가 비로그인 사용자를 리다이렉트할 URL
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/wages/' 
+
+# LOGIN_REDIRECT_URL: Django 기본 LoginView 사용 시 로그인 성공 후 이동할 URL
+# (커스텀 login_view를 사용하므로 이 설정은 백업용)
+LOGIN_REDIRECT_URL = '/'
+
+# LOGOUT_REDIRECT_URL: 로그아웃 후 리다이렉트될 URL
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# 세션 설정
+SESSION_COOKIE_AGE = 86400  # 세션 유지 시간 (초): 86400 = 24시간
+SESSION_SAVE_EVERY_REQUEST = True  # 요청마다 세션 갱신 (활동 시 세션 연장)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # 브라우저 종료 시 세션 유지 (True면 즉시 삭제)
