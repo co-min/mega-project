@@ -134,21 +134,6 @@
     text-align: center;
     color: #64748b;
   }
-  
-  .logout-section {
-    margin-top: 2rem;
-    text-align: right;
-  }
-  
-  .logout-btn {
-    background: none;
-    border: none;
-    color: #ef4444;
-    font-size: 0.875rem;
-    text-decoration: underline;
-    cursor: pointer;
-    font-weight: 600;
-  }
 </style>
 
 <div class="page-header">
@@ -222,13 +207,6 @@
       등록된 매장이 없습니다.
     </div>
     {% endif %}
-  </div>
-  
-  <div class="logout-section">
-    <form action="{% url 'accounts:logout' %}" method="post" style="display: inline;">
-      {% csrf_token %}
-      <button type="submit" class="logout-btn">시스템에서 로그아웃</button>
-    </form>
   </div>
 </div>
 {% endblock %}

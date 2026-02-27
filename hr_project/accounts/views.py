@@ -26,9 +26,10 @@ def login_view(request):
     - authenticate() 함수가 자동으로 비밀번호 해시 검증
     - Django의 CSRF 토큰으로 요청 위조 방지
     """
-    # 이미 로그인된 사용자는 근태 화면으로 리다이렉트
+    # 이미 로그인된 사용자는 next 파라미터가 있으면 해당 페이지로, 없으면 근태 화면으로 리다이렉트
     if request.user.is_authenticated:
-        return redirect('attendances:attendances')
+        next_url = request.GET.get('next', 'attendances:attendances')
+        return redirect(next_url)
     
     if request.method == 'POST':
         # 로그인 폼에서 제출된 데이터 가져오기

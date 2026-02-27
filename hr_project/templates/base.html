@@ -73,10 +73,13 @@
             <span>👤</span>
             <span>프로필</span>
           </a>
-          <a href="{% url 'accounts:logout' %}" class="menu-item">
-            <span>🚪</span>
-            <span>로그아웃</span>
-          </a>
+          <form action="{% url 'accounts:logout' %}" method="post" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="menu-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
+              <span>🚪</span>
+              <span>로그아웃</span>
+            </button>
+          </form>
         {% else %}
           <a href="{% url 'accounts:login' %}" class="menu-item">
             <span>🔑</span>
