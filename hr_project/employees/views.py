@@ -90,6 +90,7 @@ def create_employee_form_view(request):
                 return redirect('employees:list')
 
         except Exception as e:
+            print(f"Error: {e}")
             messages.error(request, f'오류가 발생했습니다: {str(e)}')
     wage_options = list(range(10500, 12500, 500))
     
@@ -169,11 +170,22 @@ def edit_employee_form_view(request, pk):
         except Exception as e:
             messages.error(request, f'오류가 발생했습니다; {str(e)}')
 
+    # 월급 선택 
     current_wage = Wage.objects.filter(
         employee=employee,
     ).order_by('-effective_start_date').first()
 
     wage_options = list(range(10500, 12500, 500))
+
+    # 수정 시 form에 정보 넣기
+    schedules = Schedule.objects.filter(employee=employee, is_active=True).order_by("work_day")
+    first_schedule = schedules.first()
+
+    work_day_selected = list(schedules.values_list("work_day", flat=True))
+
+    initial_work_type = first_schedule.work_type if first_schedule else ""
+    initial_start_time = first_schedule.start_time.strftime("%H:%M") if first_schedule and first_schedule.start_time else ""
+    initial_end_time = first_schedule.end_time.strftime("%H:%M") if first_schedule and first_schedule.end_time else ""
         
     context = {
         'employee' : employee,
@@ -181,6 +193,10 @@ def edit_employee_form_view(request, pk):
         'WORK_TYPE' : WORK_TYPE,
         'current_wage': current_wage.hourly_wage if current_wage else 10500,
         'wage_options' : wage_options,
+        'work_day_selected': work_day_selected,
+        'initial_work_type': initial_work_type,
+        'initial_start_time': initial_start_time,
+        'initial_end_time': initial_end_time,
     }
     return render(request, 'employee/employee_form.html', context ) 
         

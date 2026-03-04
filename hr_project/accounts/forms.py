@@ -1,38 +1,28 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
-from accounts.models import UserProfile, Store
+
+User = get_user_model()
 
 class SignUpForm(UserCreationForm):
-    # User
     email = forms.EmailField(required = True)
-    # Store
-    store_name = forms.CharField(max_length=100, required = True)
-    address = forms.CharField(max_length=255)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'email')
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        
+        user.email = self.cleaned_data["email"]
+
         if commit:
             user.save()
-            
-            UserProfile.objects.create(
-                user=user,
-                role='가맹점주'
-            )
-            
-            Store.objects.create(
-                owner=user,
-                name=self.cleaned_data['store_name'],
-                address=self.cleaned_data.get('address', '')
-            )
-            
+
         return user
+
+class StoreSetupForm(forms.Form):
+    store_name = forms.CharField(max_length=100, required=True)
+    address = forms.CharField(max_length=255, required=False)
 
 class ProfileEditForm(forms.Form):
     # User 필드

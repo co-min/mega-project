@@ -71,20 +71,23 @@
         {% if user.is_authenticated %}
           <a href="{% url 'accounts:profile' %}" class="menu-item {% block nav_profile_active %}{% endblock %}">
             <span>👤</span>
-            <span>Profile</span>
+            <span>프로필</span>
           </a>
-          <a href="{% url 'accounts:profile' %}" class="menu-item {% block nav_setting_active %}{% endblock %}">
-            <span>⚙️</span>
-            <span>Setting</span>
-          </a>
+          <form action="{% url 'account_logout' %}" method="post" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="menu-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; font-size: inherit; font-family: inherit;">
+              <span>🚪</span>
+              <span>로그아웃</span>
+            </button>
+          </form>
         {% else %}
-          <a href="{% url 'accounts:login' %}" class="menu-item">
+          <a href="{% url 'account_login' %}" class="menu-item">
             <span>🔑</span>
-            <span>Login</span>
+            <span>로그인</span>
           </a>
-          <a href="{% url 'accounts:signup' %}" class="menu-item signup-btn">
+          <a href="{% url 'account_signup' %}" class="menu-item">
             <span>✨</span>
-            <span>Sign Up</span>
+            <span>회원가입</span>
           </a>
         {% endif %}
       </div>

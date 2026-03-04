@@ -1,22 +1,34 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from datetime import date
+from datetime import date, datetime
 import calendar
 from employees.models import Employee
 from wages.services import get_weekly_holiday_map, calculate_monthly_salary
 from attendances.services import get_monthly_attendance_calendar
 from accounts.decorators import store_required
+import csv
+from django.http import HttpResponse
+from attendances.models import AttendanceRecord, Status
 
 @login_required
 @store_required
 def monthly_wage_view(request):
     store = request.user.store
     today = date.today()
-    try:
-        year = int(request.GET.get('year', today.year))
-        month = int(request.GET.get('month', today.month))
-    except ValueError:
-        year, month = today.year, today.month
+    date_param = request.GET.get('date')
+    if date_param:
+        try:
+            selected_date = datetime.strptime(date_param, '%Y-%m-%d')
+            year = selected_date.year
+            month = selected_date.month
+        except ValueError:
+            year, month = today.year, today.month
+    else:
+        try:
+            year = int(request.GET.get('year', today.year))
+            month = int(request.GET.get('month', today.month))
+        except ValueError:
+            year, month = today.year, today.month
 
     employees = Employee.objects.filter(
         is_active=True,
@@ -30,11 +42,15 @@ def monthly_wage_view(request):
 
         salary_list.append({
             "employee": employee,
+            "year":year,
+            "month":month,
             "total_hours": salary_data["total_hours"],
             "total_hour": salary_data["total_hour"],
             "total_minute": salary_data["total_minute"],
             "hourly_wage": salary_data["hourly_wage"],
             "before_tax": salary_data["before_tax"],
+            "after_tax":salary_data["after_tax"],
+            "weekly_bonus" : salary_data["weekly_bonus"]
         })
 
     context = {
@@ -122,3 +138,54 @@ def check_wage_view(request):
     }
     
     return render(request, 'calendar/calendar.html', context)
+
+# 급여 파일 다운로드
+@login_required
+@store_required
+def export_monthly_wage_csv(request):
+    store = request.user.store
+    
+    try:
+        year = int(request.GET.get("year", 2026))
+        month = int(request.GET.get("month", 3))
+    except (ValueError, TypeError):
+        return HttpResponse("잘못된 날짜 형식입니다.", status=400)
+
+    employees = Employee.objects.filter(store=store, is_active=True)
+
+    response = HttpResponse(content_type='text/csv; charset=utf-8-sig') # utf-8-sig로 한글 깨짐 방지
+    response['Content-Disposition'] = f'attachment; filename="mega_wage_{year}_{month}.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow([
+        "직원명",
+        "총 근무시간",
+        "주휴수당",
+        "시급",
+        "총 급여(세전)"
+        "총 급여(세후)"
+    ])
+
+    for emp in employees:
+        salary_data = calculate_monthly_salary(emp, year, month)
+
+        work_days = AttendanceRecord.objects.filter(
+            employee=emp,
+            date__year=year,
+            date__month=month,
+            status=Status.FINISHED
+        ).count()
+
+        weekly_allowance = salary_data.get("weekly_allowance", 0)
+
+        writer.writerow([
+            emp.full_name,
+            f"{salary_data['total_hours']}시간",
+            salary_data["weekly_bonus"],
+            salary_data["hourly_wage"],
+            salary_data["before_tax"],
+            salary_data["after_tax"],
+        ])
+
+    return response

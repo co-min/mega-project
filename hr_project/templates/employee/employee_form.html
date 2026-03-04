@@ -87,8 +87,10 @@
   }
 
   .color-palette {
-    display: flex;
-    flex-wrap: wrap;
+    /* 기존 flex 대신 grid를 사용하여 8칸씩 2줄로 꽉 차게 배치 */
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    justify-items: center;
     gap: 12px;
     padding: 16px;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -268,8 +270,11 @@
       justify-content: center;
     }
   }
+  
   .checkbox-group {
-    display = flex;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
   }
 </style>
 
@@ -280,8 +285,7 @@
 
 <form class="card form-card" method="post" enctype="multipart/form-data">
   {% csrf_token %}
-  
-  <!-- 기본 정보 섹션 -->
+
   <div class="form-section">
     <h3 class="section-title">👤 기본 정보</h3>
       <div class="form-field">
@@ -290,51 +294,48 @@
       </div>
   </div>
 
-  <!-- 근무 정보 섹션 -->
   <div class="form-section">
   <h3 class="section-title">💼 근무 정보</h3>
-  <div class="form-grid">
+  <div style="display: flex; flex-direction: column; gap: 24px;">
     
-    <div class="form-field span-2">
+    <div class="form-field">
       <label>
         <span id="worktypeLable">근무 유형 *</span>
       </label>
       <select name="work_type" required>
         <option value="">근무 유형을 선택하세요.</option>
         {% for value, label in WORK_TYPE %}
-          <option value="{{ value }}" {% if work_type == value %}selected{% endif %}> 
+          <option value="{{ value }}" {% if initial_work_type == value %}selected{% endif %}>
             {{ label }}
           </option>
         {% endfor %}
       </select>
     </div>
 
-    <div class="form-field span-2">
+    <div class="form-field">
       <label>
         <span id="workdayLable">근무 요일 *</span>
       </label>
       <div class="checkbox-group">
         {% for value, label in WEEKDAYS %}
           <label style="margin-right:10px;">
-            <input type="checkbox" name="work_day" value="{{ value }}" {% if value in work_day %}checked{% endif %}>
+            <input type="checkbox" name="work_day" value="{{ value }}" {% if value in work_day_selected %}checked{% endif %}>
             {{ label }}
           </label>
         {% endfor %}
       </div>
     </div>
 
-    <div class="form-field span-2">
-      <label>
-        <span id="worktimeLable">근무 시간 *</span>
-      </label>
+    <div class="form-field">
+      <label><span id="worktimeLable">근무 시간 *</span></label>
       <div style="display: flex; gap: 10px; align-items: center;">
-        <input type="time" name="start_time" class="form-control" required value="{{ start_time|default:'' }}">
+        <input type="time" name="start_time" class="form-control" required value="{{ initial_start_time }}">
         <span>~</span>
-        <input type="time" name="end_time" class="form-control" required value="{{ end_time|default:'' }}">
+        <input type="time" name="end_time" class="form-control" required value="{{ initial_end_time }}">
       </div>
     </div>
-
-    <div class="form-field span-2">
+    
+    <div class="form-field">
       <label>
         <span id="wageLable">시급 *</span>
       </label>
@@ -347,14 +348,14 @@
         {% endfor %}
       </select>
     </div>
-
   </div>
 </div>
 
-  <!-- 시스템 설정 섹션 -->
   <div class="form-section">
     <h3 class="section-title">⚙️ 시스템 설정</h3>
-    <div class="form-grid">
+    
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      
       <div class="form-field">
         <label>출석 번호 *</label>
         <input type="password" name="attendance_pin" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" value="{{ employee.attendance_pin|default:'' }}" required />
@@ -365,41 +366,30 @@
         <input type="password" name="pin_confirm" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" required />
       </div>
 
-      <div class="form-field span-2">
+      <div class="form-field">
         <label>직원 구분 색상 *</label>
         <div class="color-picker-section">
-          <!-- 색상 팔레트 -->
           <div class="color-palette">
-            <button type="button" class="palette-color" data-color="#ef4444" style="background: #ef4444;" title="빨강">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#f97316" style="background: #f97316;" title="주황">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#eab308" style="background: #eab308;" title="노랑">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#22c55e" style="background: #22c55e;" title="초록">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#06b6d4" style="background: #06b6d4;" title="청록">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#3b82f6" style="background: #3b82f6;" title="파랑">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#8b5cf6" style="background: #8b5cf6;" title="보라">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#ec4899" style="background: #ec4899;" title="핑크">
-              <span class="color-check">✓</span>
-            </button>
-            <button type="button" class="palette-color" data-color="#a855f7" style="background: #b3f542;" title="연두">
-              <span class="color-check">✓</span>
-            </button>
-          </div>
+
+          <button type="button" class="palette-color" data-color="#F8BBD0" style="background:#F8BBD0;" title="파스텔 핑크"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#F7A8A8" style="background:#F7A8A8;" title="소프트 코랄"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#FFD3B6" style="background:#FFD3B6;" title="피치"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#FFCCBC" style="background:#FFCCBC;" title="살구"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#FFF3B0" style="background:#FFF3B0;" title="파스텔 옐로우"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#E6F4C7" style="background:#E6F4C7;" title="라이트 라임"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#B8E6C1" style="background:#B8E6C1;" title="민트"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#CDEED8" style="background:#CDEED8;" title="연그린"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#B3E5FC" style="background:#B3E5FC;" title="하늘색"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#C5DFF8" style="background:#C5DFF8;" title="파스텔 블루"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#E1BEE7" style="background:#E1BEE7;" title="라벤더"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#D5C6F8" style="background:#D5C6F8;" title="연보라"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#F3C1E8" style="background:#F3C1E8;" title="모브"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#D8B4F8" style="background:#D8B4F8;" title="라일락"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#EADBC8" style="background:#EADBC8;" title="베이지"><span class="color-check">✓</span></button>
+          <button type="button" class="palette-color" data-color="#D6D6D6" style="background:#D6D6D6;" title="소프트 그레이"><span class="color-check">✓</span></button>
+
+        </div>
           
-          <!-- 커스텀 색상 선택 -->
           <div class="color-preview-group">
             <span style="font-size: 13px; color: #6b7280; font-weight: 600;">또는 직접 선택:</span>
             <button class="color-preview-btn" type="button" id="colorPickerBtn">
@@ -416,7 +406,7 @@
 
   <div class="form-actions">
     <a href="{% url 'employees:list' %}" class="btn">‹ 이전</a>
-    <button class="btn primary" type="submit">{% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>
+    <button class="btn primary" type="submit"> {% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>
   </div>
 </form>
 

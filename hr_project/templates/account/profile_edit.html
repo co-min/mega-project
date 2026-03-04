@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}프로필 수정 · Mega Coffee HR{% endblock %}
+
+{% block content %}
+<style>
+    .edit-card {
+        max-width: 500px;
+        margin: 60px auto;
+        padding: 40px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+    
+    .edit-title {
+        font-weight: 800;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .section-title {
+        margin-bottom: 15px;
+        color: #2563eb;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    
+    .section-divider {
+        border-top: 1px solid #eee;
+        margin: 30px 0;
+    }
+    
+    .edit-input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-top: 6px;
+        margin-bottom: 20px;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
+    
+    .edit-input:focus {
+        border-color: #2563eb;
+        outline: none;
+    }
+    
+    .edit-label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #555;
+    }
+    
+    .btn-save {
+        width: 100%;
+        padding: 14px;
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    
+    .btn-save:hover {
+        background: #1e40af;
+    }
+    
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .btn-cancel:hover {
+        color: #334155;
+    }
+    .btn-search {
+        padding: 0 16px;
+        background: #f1f5f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #334155;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .btn-search:hover { background: #e2e8f0; }
+    
+    .place-item {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+    }
+    .place-item:hover { background: #f8fafc; }
+    .place-item strong { color: #1e293b; font-size: 15px; }
+    .place-item span { color: #64748b; font-size: 13px; display: block; margin-top: 4px; }
+</style>
+
+<div class="edit-card">
+    <h2 class="edit-title">프로필 수정</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <h4 class="section-title">기본 정보</h4>
+        <div>
+            <label class="edit-label">이름 (점장명)</label>
+            {{ form.username }}
+        </div>
+        <div>
+            <label class="edit-label">이메일</label>
+            {{ form.email }}
+        </div>
+
+        <div class="section-divider"></div>
+
+        <h4 class="section-title">매장 정보</h4>
+    
+        <div>
+            <label class="edit-label">매장 검색</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="keyword" class="edit-input" placeholder="예: 메가커피 강남" style="margin-bottom: 0;">
+                <button type="button" class="btn-search" onclick="searchPlaces()">검색</button>
+            </div>
+            <ul id="placesList" style="list-style: none; padding: 0; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; max-height: 200px; overflow-y: auto; display: none;"></ul>
+        </div>
+        <br>
+
+        <div>
+            <label class="edit-label">매장 이름</label>
+            {{ form.store_name }}
+        </div>
+        <div>
+            <label class="edit-label">매장 주소</label>
+            {{ form.address }}
+        </div>
+
+        <button type="submit" class="btn-save">저장하기</button>
+        <a href="{% url 'accounts:profile' %}" class="btn-cancel">취소하고 돌아가기</a>
+    </form>
+</div>
+
+<script>
+    document.querySelectorAll('.edit-card input').forEach(input => {
+    input.classList.add('edit-input');
+});
+function searchPlaces() {
+    const keyword = document.getElementById('keyword').value.trim();
+
+    if (!keyword) {
+        alert('검색할 매장 이름을 입력해주세요!');
+        return;
+    }
+
+    fetch(`/accounts/kakao_search/?keyword=${encodeURIComponent(keyword)}`)
+        .then(response => response.json())
+        .then(data => {
+            const listEl = document.getElementById('placesList');
+            listEl.innerHTML = '';
+            listEl.style.display = 'block';
+
+            if (!data.documents || data.documents.length === 0) {
+                listEl.innerHTML = '<li class="place-item">검색 결과가 없습니다.</li>';
+                return;
+            }
+
+            data.documents.forEach(place => {
+                const itemEl = document.createElement('li');
+                itemEl.className = 'place-item';
+
+                const placeName = place.place_name;
+                const addressName = place.road_address_name || place.address_name;
+
+                itemEl.innerHTML = `
+                    <strong>${placeName}</strong>
+                    <span>${addressName}</span>
+                `;
+
+                itemEl.onclick = function() {
+                    document.querySelector('input[name="store_name"]').value = placeName;
+                    document.querySelector('input[name="address"]').value = addressName;
+
+                    listEl.style.display = 'none';
+                };
+
+                listEl.appendChild(itemEl);
+            });
+        })
+        .catch(error => {
+            console.error(error);
+            alert("검색 중 오류가 발생했습니다.");
+        });
+}
+</script>
+{% endblock %}

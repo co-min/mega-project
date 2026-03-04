@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}이메일 인증 안내 · Mega Coffee HR{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+    
+    <div class="auth-card" style="text-align: center; padding: 40px 20px;">
+        <h2 class="auth-title" style="margin-bottom: 20px;">이메일 인증이 필요합니다 ✉️</h2>
+        
+        <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px; color: #555; line-height: 1.6;">
+            회원가입 시 입력하신 이메일 주소로<br>
+            <strong>인증 링크</strong>를 발송해 드렸습니다.<br><br>
+            메일함을 확인하시고, 링크를 클릭하시면<br>가입 절차가 모두 완료됩니다!<br><br>
+            감사합니다♥️
+        </div>
+        
+        <p style="font-size: 0.85em; color: #888;">
+            * 혹시 메일이 오지 않았다면 스팸 메일함을 확인해 주세요.
+        </p>
+    </div>
+
+</div>
+{% endblock %}

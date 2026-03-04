@@ -83,6 +83,8 @@
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 1px solid #eef2f7;
+    display: flex;
+    justify-content: flex-end;
   }
   
   .store-section-header {
@@ -134,20 +136,50 @@
     text-align: center;
     color: #64748b;
   }
-  
-  .logout-section {
-    margin-top: 2rem;
-    text-align: right;
+
+
+  .dev-credits-divider {
+    margin: 2rem 0 1rem 0;
+    border: 0;
+    border-top: 1px solid #f1f5f9; /* 아주 연한 구분선 */
+  }
+
+  .dev-credits-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* 아래쪽 정렬로 더 차분하게 */
+    opacity: 0.6; /* 전체적으로 투명도를 주어 눈에 덜 띄게 함 */
+    transition: opacity 0.3s;
+  }
+
+  .dev-credits-container:hover {
+    opacity: 1; /* 마우스 올렸을 때만 선명하게 */
+  }
+
+  .dev-item {
+    font-size: 0.75rem; /* 글자 크기를 줄여 작게 표시 */
+    color: #64748b;
+  }
+
+  .dev-item strong {
+    color: #334155;
+    font-weight: 600;
+  }
+
+  .dev-item .role {
+    color: #94a3b8;
+    margin-left: 4px;
+  }
+
+  .dev-github-link {
+    text-decoration: none;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    margin-left: 5px;
   }
   
-  .logout-btn {
-    background: none;
-    border: none;
-    color: #ef4444;
-    font-size: 0.875rem;
-    text-decoration: underline;
-    cursor: pointer;
-    font-weight: 600;
+  .dev-github-link:hover {
+    color: #2563eb;
   }
 </style>
 
@@ -173,7 +205,7 @@
     </div>
     <div>
       <h2 class="profile-name">{{ user.username }}</h2>
-      <span class="profile-role-badge">{{ user.profile.role }}</span>
+      <span class="profile-role-badge"> {{ user.username }}님, 좋은 하루 되세요 ^_^ </span>
     </div>
   </div>
 
@@ -185,10 +217,6 @@
     <div class="form-field">
       <label>📧 이메일</label>
       <div class="field-display">{{ user.email }}</div>
-    </div>
-    <div class="form-field">
-      <label>💼 역할</label>
-      <div class="field-display">{{ user.profile.role }}</div>
     </div>
   </div>
   
@@ -215,7 +243,6 @@
         <div class="store-name">{{ user.store.name }}</div>
         <div class="store-address">{{ user.store.address }}</div>
       </div>
-      <span class="badge blue">대표 매장</span>
     </div>
     {% else %}
     <div class="empty-store">
@@ -223,12 +250,29 @@
     </div>
     {% endif %}
   </div>
+</div>
+<hr class="dev-credits-divider">
+<div class="dev-credits-container">
+  <div style="display: flex; gap: 20px;">
+    <div class="dev-item">
+      Developers
+    </div>
+
+    <div class="dev-item">
+      <strong>정회윤</strong><span class="role">Backend</span>
+      <a href="https://github.com/hoeyun" class="dev-github-link" target="_blank">🔗GitHub</a>
+    </div>
+    
+    <div style="width: 3px; height: 3px; background: #cbd5e1; border-radius: 50%; align-self: center;"></div>
+
+    <div class="dev-item">
+      <strong>이정민</strong><span class="role">Frontend</span>
+      <a href="https://github.com/jeongmin" class="dev-github-link" target="_blank">🔗GitHub</a>
+    </div>
+  </div>
   
-  <div class="logout-section">
-    <form action="{% url 'accounts:logout' %}" method="post" style="display: inline;">
-      {% csrf_token %}
-      <button type="submit" class="logout-btn">시스템에서 로그아웃</button>
-    </form>
+  <div class="dev-item" style="font-style: italic; font-size: 0.7rem;">
+    © 2026 Mega Coffee HR Project
   </div>
 </div>
 {% endblock %}

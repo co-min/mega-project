@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 
-{% block title %}점주 회원가입 · Mega Coffee HR{% endblock %}
+{% block title %}점주 로그인 · Mega Coffee HR{% endblock %}
 
 {% block content %}
 <style>
     .auth-card {
-        max-width: 480px;
-        margin: 80px auto;
+        max-width: 400px;
+        margin: 100px auto;
         padding: 40px;
         background: white;
         border-radius: 20px;
@@ -58,12 +59,12 @@
         color: #555;
     }
     
-    .error-text {
+    .auth-error {
         color: #ef4444;
-        font-size: 12px;
-        margin-top: -15px;
-        margin-bottom: 15px;
-        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
     }
     
     .auth-footer {
@@ -81,32 +82,37 @@
 </style>
 
 <div class="auth-card">
-    <h2 class="auth-title">가맹점주 회원가입</h2>
+    <h2 class="auth-title">매장 관리자 로그인</h2>
     
     <form method="POST">
         {% csrf_token %}
         
-        {% for field in form %}
-        <div>
-            <label class="auth-label">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-            <span class="error-text">{{ field.errors.0 }}</span>
-            {% endif %}
+        {% if form.errors %}
+        <div class="auth-error">
+            아이디 또는 비밀번호가 올바르지 않습니다.
         </div>
-        {% endfor %}
+        {% endif %}
         
-        <button type="submit" class="auth-btn">가입 및 매장 생성하기</button>
+        <div>
+            <label class="auth-label">아이디</label>
+            <input type="text" name="username" class="auth-input" required>
+        </div>
+        
+        <div>
+            <label class="auth-label">비밀번호</label>
+            <input type="password" name="password" class="auth-input" required>
+        </div>
+        
+        <button type="submit" class="auth-btn">로그인</button>
     </form>
     
     <div class="auth-footer">
-        이미 계정이 있으신가요? <a href="{% url 'accounts:login' %}" class="auth-link">로그인</a>
+        아직 계정이 없으신가요? <a href="{% url 'account_signup' %}" class="auth-link">회원가입</a>
     </div>
-</div>
+    {% load socialaccount %}
 
-<script>
-    document.querySelectorAll('.auth-card input').forEach(input => {
-        input.classList.add('auth-input');
-    });
-</script>
+    <a href="{% provider_login_url 'google' %}">구글로 로그인하기</a>
+
+    <a href="{% url 'account_reset_password' %}" class="auth-link">비밀번호를 잊으셨나요?</a>
+</div>
 {% endblock %}

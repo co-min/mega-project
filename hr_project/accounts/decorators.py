@@ -8,6 +8,6 @@ def store_required(view_func):
         store = getattr(request.user, "store", None)
         if not store:
             messages.error(request, "매장을 먼저 등록해주세요.")
-            return redirect("accounts:profile")
+            return redirect("accounts:store_setup")
         return view_func(request, *args, **kwargs)
     return wrapper
