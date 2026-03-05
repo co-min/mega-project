@@ -18,12 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic.base import RedirectView
+from attendances.views import attendance_view
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # 루트 URL: 로그인 페이지로 리다이렉트
-    path('', RedirectView.as_view(pattern_name='accounts:login', permanent=False), name='home'),
+    # 루트 URL: 로그인 완료 시 근무 기록 화면으로 
+    path('', attendance_view, name='home'),
     # 근태 관리
     path('attendances/', include('attendances.urls')),
     # 직원 관리

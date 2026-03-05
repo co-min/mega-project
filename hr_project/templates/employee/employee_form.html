@@ -6,11 +6,11 @@
 <style>
   /* Form layout improvements */
   .form-card {
-    max-width: 900px;
+    max-width: 800px;
     margin: 0 auto;
+    width: 100%;
     background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-  }
-
+}
   .form-section {
     margin-bottom: 32px;
     padding: 24px;
@@ -276,139 +276,165 @@
     flex-wrap: wrap;
     gap: 15px;
   }
+
+  .employee-main-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    padding: 40px;
+    min-height: 700px;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+  .page-title {
+      font-size: 26px; 
+      font-weight: 800; 
+      color: #111; 
+      margin: 0; /* 마진 제거 (flex gap으로 조절) */
+      letter-spacing: -0.5px;
+  }
+  .page-header {
+    max-width: 800px; /* 아래 form-card와 동일한 너비로 설정 */
+    margin: 0 auto 30px auto; /* 중앙 정렬하되 아래 간격 30px */
+    width: 100%;
+    text-align: left; /* 글자는 왼쪽부터 시작 */
+}
+
 </style>
 
+<div class="employee-main-card">
 
-<div class="page-header">
-  <h1>{% if employee %}직원 정보 수정{% else %}새 직원 등록{% endif %}</h1>
-</div>
 
-<form class="card form-card" method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-
-  <div class="form-section">
-    <h3 class="section-title">👤 기본 정보</h3>
-      <div class="form-field">
-        <label>이름 *</label>
-        <input type="text" name="full_name" placeholder="이름을 입력하세요" value="{{ employee.full_name|default:'' }}" required />
-      </div>
+  <div class="page-header">
+    <h2 class="page-title">{% if employee %}직원 정보 수정{% else %}새 직원 등록{% endif %}</h2>
   </div>
 
-  <div class="form-section">
-  <h3 class="section-title">💼 근무 정보</h3>
-  <div style="display: flex; flex-direction: column; gap: 24px;">
-    
-    <div class="form-field">
-      <label>
-        <span id="worktypeLable">근무 유형 *</span>
-      </label>
-      <select name="work_type" required>
-        <option value="">근무 유형을 선택하세요.</option>
-        {% for value, label in WORK_TYPE %}
-          <option value="{{ value }}" {% if initial_work_type == value %}selected{% endif %}>
-            {{ label }}
-          </option>
-        {% endfor %}
-      </select>
+  <form class="card form-card" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-section">
+      <h3 class="section-title">👤 기본 정보</h3>
+        <div class="form-field">
+          <label>이름 *</label>
+          <input type="text" name="full_name" placeholder="이름을 입력하세요" value="{{ employee.full_name|default:'' }}" required />
+        </div>
     </div>
 
-    <div class="form-field">
-      <label>
-        <span id="workdayLable">근무 요일 *</span>
-      </label>
-      <div class="checkbox-group">
-        {% for value, label in WEEKDAYS %}
-          <label style="margin-right:10px;">
-            <input type="checkbox" name="work_day" value="{{ value }}" {% if value in work_day_selected %}checked{% endif %}>
-            {{ label }}
-          </label>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="form-field">
-      <label><span id="worktimeLable">근무 시간 *</span></label>
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <input type="time" name="start_time" class="form-control" required value="{{ initial_start_time }}">
-        <span>~</span>
-        <input type="time" name="end_time" class="form-control" required value="{{ initial_end_time }}">
-      </div>
-    </div>
-    
-    <div class="form-field">
-      <label>
-        <span id="wageLable">시급 *</span>
-      </label>
-      <select name="hourly_wage" required>
-        <option value="">시급을 선택하세요.</option>
-        {% for wage in wage_options %}
-          <option value="{{ wage }}" {% if current_wage == wage %}selected{% endif %}>
-            {{ wage }}원
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-</div>
-
-  <div class="form-section">
-    <h3 class="section-title">⚙️ 시스템 설정</h3>
-    
+    <div class="form-section">
+    <h3 class="section-title">💼 근무 정보</h3>
     <div style="display: flex; flex-direction: column; gap: 24px;">
       
       <div class="form-field">
-        <label>출석 번호 *</label>
-        <input type="password" name="attendance_pin" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" value="{{ employee.attendance_pin|default:'' }}" required />
+        <label>
+          <span id="worktypeLable">근무 유형 *</span>
+        </label>
+        <select name="work_type" required>
+          <option value="">근무 유형을 선택하세요.</option>
+          {% for value, label in WORK_TYPE %}
+            <option value="{{ value }}" {% if initial_work_type == value %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
       </div>
 
       <div class="form-field">
-        <label>출석 번호 확인 *</label>
-        <input type="password" name="pin_confirm" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" required />
+        <label>
+          <span id="workdayLable">근무 요일 *</span>
+        </label>
+        <div class="checkbox-group">
+          {% for value, label in WEEKDAYS %}
+            <label style="margin-right:10px;">
+              <input type="checkbox" name="work_day" value="{{ value }}" {% if value in work_day_selected %}checked{% endif %}>
+              {{ label }}
+            </label>
+          {% endfor %}
+        </div>
       </div>
 
       <div class="form-field">
-        <label>직원 구분 색상 *</label>
-        <div class="color-picker-section">
-          <div class="color-palette">
-
-          <button type="button" class="palette-color" data-color="#F8BBD0" style="background:#F8BBD0;" title="파스텔 핑크"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#F7A8A8" style="background:#F7A8A8;" title="소프트 코랄"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#FFD3B6" style="background:#FFD3B6;" title="피치"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#FFCCBC" style="background:#FFCCBC;" title="살구"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#FFF3B0" style="background:#FFF3B0;" title="파스텔 옐로우"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#E6F4C7" style="background:#E6F4C7;" title="라이트 라임"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#B8E6C1" style="background:#B8E6C1;" title="민트"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#CDEED8" style="background:#CDEED8;" title="연그린"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#B3E5FC" style="background:#B3E5FC;" title="하늘색"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#C5DFF8" style="background:#C5DFF8;" title="파스텔 블루"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#E1BEE7" style="background:#E1BEE7;" title="라벤더"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#D5C6F8" style="background:#D5C6F8;" title="연보라"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#F3C1E8" style="background:#F3C1E8;" title="모브"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#D8B4F8" style="background:#D8B4F8;" title="라일락"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#EADBC8" style="background:#EADBC8;" title="베이지"><span class="color-check">✓</span></button>
-          <button type="button" class="palette-color" data-color="#D6D6D6" style="background:#D6D6D6;" title="소프트 그레이"><span class="color-check">✓</span></button>
-
+        <label><span id="worktimeLable">근무 시간 *</span></label>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <input type="time" name="start_time" class="form-control" required value="{{ initial_start_time }}">
+          <span>~</span>
+          <input type="time" name="end_time" class="form-control" required value="{{ initial_end_time }}">
         </div>
-          
-          <div class="color-preview-group">
-            <span style="font-size: 13px; color: #6b7280; font-weight: 600;">또는 직접 선택:</span>
-            <button class="color-preview-btn" type="button" id="colorPickerBtn">
-              <span class="color-icon">🎨</span>
-            </button>
-            <input type="color" name="color_tag" id="colorInput" value="{{ employee.color_tag|default:'#22c55e' }}" style="display: none;" />
-          </div>
-          
-          <span class="color-hint">스케줄 및 출석에서 직원을 구분하는 색상입니다</span>
-        </div>
+      </div>
+      
+      <div class="form-field">
+        <label>
+          <span id="wageLable">시급 *</span>
+        </label>
+        <select name="hourly_wage" required>
+          <option value="">시급을 선택하세요.</option>
+          {% for wage in wage_options %}
+            <option value="{{ wage }}" {% if current_wage == wage %}selected{% endif %}>
+              {{ wage }}원
+            </option>
+          {% endfor %}
+        </select>
       </div>
     </div>
   </div>
 
-  <div class="form-actions">
-    <a href="{% url 'employees:list' %}" class="btn">‹ 이전</a>
-    <button class="btn primary" type="submit"> {% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>
-  </div>
-</form>
+    <div class="form-section">
+      <h3 class="section-title">⚙️ 시스템 설정</h3>
+      
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        
+        <div class="form-field">
+          <label>출석 번호 *</label>
+          <input type="password" name="attendance_pin" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" value="{{ employee.attendance_pin|default:'' }}" required />
+        </div>
+
+        <div class="form-field">
+          <label>출석 번호 확인 *</label>
+          <input type="password" name="pin_confirm" placeholder="4자리 숫자" maxlength="4" pattern="\d{4}" required />
+        </div>
+
+        <div class="form-field">
+          <label>직원 구분 색상 *</label>
+          <div class="color-picker-section">
+            <div class="color-palette">
+
+            <button type="button" class="palette-color" data-color="#F8BBD0" style="background:#F8BBD0;" title="파스텔 핑크"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#F7A8A8" style="background:#F7A8A8;" title="소프트 코랄"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#FFD3B6" style="background:#FFD3B6;" title="피치"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#FFCCBC" style="background:#FFCCBC;" title="살구"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#FFF3B0" style="background:#FFF3B0;" title="파스텔 옐로우"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#E6F4C7" style="background:#E6F4C7;" title="라이트 라임"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#B8E6C1" style="background:#B8E6C1;" title="민트"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#CDEED8" style="background:#CDEED8;" title="연그린"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#B3E5FC" style="background:#B3E5FC;" title="하늘색"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#C5DFF8" style="background:#C5DFF8;" title="파스텔 블루"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#E1BEE7" style="background:#E1BEE7;" title="라벤더"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#D5C6F8" style="background:#D5C6F8;" title="연보라"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#F3C1E8" style="background:#F3C1E8;" title="모브"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#D8B4F8" style="background:#D8B4F8;" title="라일락"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#EADBC8" style="background:#EADBC8;" title="베이지"><span class="color-check">✓</span></button>
+            <button type="button" class="palette-color" data-color="#D6D6D6" style="background:#D6D6D6;" title="소프트 그레이"><span class="color-check">✓</span></button>
+
+          </div>
+            
+            <div class="color-preview-group">
+              <span style="font-size: 13px; color: #6b7280; font-weight: 600;">또는 직접 선택:</span>
+              <button class="color-preview-btn" type="button" id="colorPickerBtn">
+                <span class="color-icon">🎨</span>
+              </button>
+              <input type="color" name="color_tag" id="colorInput" value="{{ employee.color_tag|default:'#22c55e' }}" style="display: none;" />
+            </div>
+            
+            <span class="color-hint">스케줄 및 출석에서 직원을 구분하는 색상입니다</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'employees:list' %}" class="btn">‹ 이전</a>
+      <button class="btn primary" type="submit"> {% if employee %}수정 완료{% else %}등록 완료{% endif %} ›</button>
+    </div>
+  </form>
+</div>
 
 <script>
   const form = document.querySelector('form.form-card');

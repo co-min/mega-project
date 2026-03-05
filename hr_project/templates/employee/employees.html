@@ -149,10 +149,18 @@
         border: 2px dashed #e5e7eb;
         color: #9ca3af;
     }
+
+    .page-title {
+        font-size: 26px; 
+        font-weight: 800; 
+        color: #111; 
+        margin: 0; /* 마진 제거 (flex gap으로 조절) */
+        letter-spacing: -0.5px;
+    }
 </style>
 <div class="employee-main-card">
     <div class="page-header">
-        <h1 style="font-size: 24px; font-weight: 700; color: #1f2937;">직원 관리</h1>
+        <h2 class="page-title">직원 관리</h2>
         <a href="{% url 'employees:create' %}" class="btn primary" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">+ 직원 추가</a>
     </div>
 
