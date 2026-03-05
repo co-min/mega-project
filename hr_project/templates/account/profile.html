@@ -190,14 +190,9 @@
 <div class="card">
   <div class="profile-header">
     <div class="profile-avatar" onclick="document.getElementById('profileImageInput').click()">
-      {% if user.profile.profile_image %}
-      <img src="{{ user.profile.profile_image.url }}" class="profile-avatar-img" alt="프로필 이미지">
-      {% else %}
       <div class="profile-avatar-placeholder">
         {{ user.username|first|upper }}
       </div>
-      {% endif %}
-      <div class="profile-avatar-badge">📷</div>
       <form id="profileImageForm" method="post" enctype="multipart/form-data" style="display: none;">
         {% csrf_token %}
         <input type="file" id="profileImageInput" name="profile_image" accept="image/*" onchange="document.getElementById('profileImageForm').submit()">

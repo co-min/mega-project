@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import SignUpForm, ProfileEditForm
-from .models import Store
+from .forms import SignUpForm, ProfileEditForm, User
+from .models import Store, UserProfile
 from django.conf import settings
 import requests 
 from django.http import JsonResponse  
@@ -67,6 +67,7 @@ def login_view(request):
 def profile_view(request):
     return render(request, 'account/profile.html')
 
+
 @login_required
 def profile_edit_view(request):
     user = request.user
@@ -76,7 +77,11 @@ def profile_edit_view(request):
     if request.method == 'POST':
         form = ProfileEditForm(request.POST)
         if form.is_valid():
-            user.username = form.cleaned_data['username']
+            username = form.cleaned_data['username']
+            if User.objects.filter(username=username).exclude(pk=request.user.pk).exists():
+                messages.error(request, "이미 사용중인 이름입니다.")
+                return redirect("accounts:profile_edit")
+            user.username = username
             user.email = form.cleaned_data['email']
             user.save()
 
@@ -98,7 +103,7 @@ def profile_edit_view(request):
 
     return render(request, 'account/profile_edit.html', {'form': form})
 
-
+# 카카오 맵 설정
 def kakao_search(request):
     keyword = request.GET.get("keyword")
 

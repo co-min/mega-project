@@ -16,16 +16,20 @@ import os
 
 load_dotenv()
 
+import environ
+
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+environ.Env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%=@81+&sr)r81=$+k2d#z=$zp)nuzd3&jjl0=s(%)@ae8pht6)'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -91,10 +95,6 @@ WSGI_APPLICATION = 'hr_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-import environ
-
-env = environ.Env()
-environ.Env.read_env(BASE_DIR / '.env')
 
 DATABASES = {
     'default': {
@@ -144,11 +144,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
-# Media files (업로드된 이미지 등)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-
+# 로그인 관련 설정
+# LOGIN_URL: @login_required 데코레이터가 비로그인 사용자를 리다이렉트할 URL
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/' 
 LOGOUT_REDIRECT_URL = '/accounts/login/'
@@ -157,8 +154,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # 일반 로그인
     'allauth.account.auth_backends.AuthenticationBackend', # 소셜 로그인
 )
-
-#구글테스트 ,rnrmf1234
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -200,3 +195,7 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 KAKAO_REST_API_KEY = os.getenv('KAKAO_REST_API_KEY')
+
+# 프로필 사진
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'

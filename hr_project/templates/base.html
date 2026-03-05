@@ -44,7 +44,6 @@
         <div class="profile-info">
           {% if user.is_authenticated %}
             <div class="name">{{ user.username }} 점장님</div>
-            <div class="role">{{ user.store.name|default:"매장 미등록" }}</div>
           {% else %}
             <div class="name">로그인 해주세요</div>
             <div class="role">MEGA HR SYSTEM</div>
