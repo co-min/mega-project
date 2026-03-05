@@ -18,14 +18,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('attendances.urls')),
-    path('employees/', include('employees.urls')),
+    # 루트 URL: 로그인 페이지로 리다이렉트
+    path('', RedirectView.as_view(pattern_name='accounts:login', permanent=False), name='home'),
+    # 근태 관리
     path('attendances/', include('attendances.urls')),
+    # 직원 관리
+    path('employees/', include('employees.urls')),
+    # 스케줄 관리
     path('schedules/', include('schedules.urls')),
+    # 급여 관리
     path('wages/', include('wages.urls')),
+    # 계정 관리 (로그인/로그아웃/회원가입)
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('allauth.urls')),
 ]
