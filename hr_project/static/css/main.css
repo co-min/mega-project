@@ -53,7 +53,7 @@ body {
     box-shadow: 0 1px 0 rgba(0,0,0,0.04);
     text-decoration: none;
     color: inherit;
-    cursor: pointer;
+    cursor: default !important;
 }
 
 .avatar { 
@@ -63,7 +63,7 @@ body {
     background: #d4d4d8; 
 }
 
-.profile-info .name { font-weight: 700; }
+.profile-info .name { font-weight: 700;}
 
 
 /* ========== Menu ========== */

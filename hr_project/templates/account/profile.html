@@ -15,7 +15,6 @@
   
   .profile-avatar {
     position: relative;
-    cursor: pointer;
   }
   
   .profile-avatar-img {
@@ -189,14 +188,10 @@
 
 <div class="card">
   <div class="profile-header">
-    <div class="profile-avatar" onclick="document.getElementById('profileImageInput').click()">
+    <div class="profile-avatar">
       <div class="profile-avatar-placeholder">
         {{ user.username|first|upper }}
       </div>
-      <form id="profileImageForm" method="post" enctype="multipart/form-data" style="display: none;">
-        {% csrf_token %}
-        <input type="file" id="profileImageInput" name="profile_image" accept="image/*" onchange="document.getElementById('profileImageForm').submit()">
-      </form>
     </div>
     <div>
       <h2 class="profile-name">{{ user.username }}</h2>
