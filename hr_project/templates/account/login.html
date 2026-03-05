@@ -104,15 +104,16 @@
         </div>
         
         <button type="submit" class="auth-btn">로그인</button>
+        <a href="{% provider_login_url 'google' %}">구글로 로그인</a>
     </form>
     
     <div class="auth-footer">
-        아직 계정이 없으신가요? <a href="{% url 'account_signup' %}" class="auth-link">회원가입</a>
+        아직 계정이 없으신가요? <a href="{% url 'account_signup' %}" class="auth-link">회원가입</a> <br>
+        <a href="{% url 'account_reset_password' %}" class="auth-link">비밀번호 찾기</a> <br>
+        
     </div>
     {% load socialaccount %}
 
-    <a href="{% provider_login_url 'google' %}">구글로 로그인하기</a>
-
-    <a href="{% url 'account_reset_password' %}" class="auth-link">비밀번호를 잊으셨나요?</a>
+    
 </div>
 {% endblock %}
