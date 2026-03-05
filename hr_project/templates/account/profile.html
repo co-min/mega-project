@@ -7,10 +7,17 @@
   .profile-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1.5rem;
     margin-bottom: 2rem;
     padding-bottom: 2rem;
     border-bottom: 1px solid #eef2f7;
+  }
+  
+  .profile-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
   }
   
   .profile-avatar {
@@ -79,11 +86,31 @@
   }
   
   .profile-actions {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid #eef2f7;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  .btn-edit-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+  }
+  
+  .btn-edit-profile:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
   }
   
   .store-section-header {
@@ -188,14 +215,24 @@
 
 <div class="card">
   <div class="profile-header">
-    <div class="profile-avatar">
-      <div class="profile-avatar-placeholder">
-        {{ user.username|first|upper }}
+    <div class="profile-info">
+      <div class="profile-avatar" onclick="document.getElementById('profileImageInput').click()">
+        <div class="profile-avatar-placeholder">
+          {{ user.username|first|upper }}
+        </div>
+        <form id="profileImageForm" method="post" enctype="multipart/form-data" style="display: none;">
+          {% csrf_token %}
+          <input type="file" id="profileImageInput" name="profile_image" accept="image/*" onchange="document.getElementById('profileImageForm').submit()">
+        </form>
+      </div>
+      <div>
+        <h2 class="profile-name">{{ user.username }}</h2>
+        <span class="profile-role-badge"> {{ user.username }}님, 좋은 하루 되세요 ^_^ </span>
       </div>
     </div>
-    <div>
-      <h2 class="profile-name">{{ user.username }}</h2>
-      <span class="profile-role-badge"> {{ user.username }}님, 좋은 하루 되세요 ^_^ </span>
+    
+    <div class="profile-actions">
+      <a href="{% url 'accounts:profile_edit' %}" class="btn-edit-profile">✏️ 프로필 수정</a>
     </div>
   </div>
 
@@ -210,9 +247,6 @@
     </div>
   </div>
   
-  <div class="profile-actions">
-    <a href="{% url 'accounts:profile_edit' %}" class="btn primary">✏️ 프로필 수정</a>
-  </div>
 </div>
 
 <div class="card">
