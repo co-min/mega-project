@@ -120,7 +120,6 @@
 <div class="container mt-4">
     <div class="dashboard-card">
 
-        <!-- 상단 -->
         <div class="top-bar">
 
             <div class="emp-badge">
@@ -131,7 +130,7 @@
                 <a href="?employee_id={{ employee.id }}&year={{ prev_year }}&month={{ prev_month }}" class="nav-arrow">
                     <i class="bi bi-chevron-left"></i>
                 </a>
-                {{ month }}월
+                {{ year }}년 {{ month }}월
                 <a href="?employee_id={{ employee.id }}&year={{ next_year }}&month={{ next_month }}" class="nav-arrow">
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -144,7 +143,6 @@
 
         </div>
 
-        <!-- 캘린더 -->
         <table class="calendar-table">
             <thead>
                 <tr>
@@ -160,11 +158,16 @@
                 {% for item in week %}
                     <td>
                         {% if item.day != 0 %}
-                            <span class="day-num">
-                                {{ item.day|stringformat:"02d" }}
-                            </span>
+                            <div class="day-cell-content" 
+                                 data-date="{{ year }}-{{ month|stringformat:'02d' }}-{{ item.day|stringformat:'02d' }}" 
+                                 data-is-sunday="{% if forloop.last %}true{% else %}false{% endif %}"
+                                 style="height: 100%; display: flex; flex-direction: column;">
+                                
+                                <span class="day-num">
+                                    {{ item.day|stringformat:"02d" }}
+                                </span>
 
-                            {% if item.attendance and item.attendance.time %}
+                                {% if item.attendance and item.attendance.time %}
                                     <div class="work-item {{ item.attendance.css_class }}">
                                         <div class="dot"
                                             style="background: {{ employee.color_tag|default:'#ff3d3d' }}">
@@ -176,13 +179,14 @@
                                         </span>
                                     </div>
 
-                                {% if item.attendance.breaktime and item.attendance.breaktime > 0 %}
-                                    <div class="break-badge">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                        휴게 {{ item.attendance.breaktime }}분
-                                    </div>
+                                    {% if item.attendance.breaktime and item.attendance.breaktime > 0 %}
+                                        <div class="break-badge">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            휴게 {{ item.attendance.breaktime }}분
+                                        </div>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
+                            </div>
                         {% endif %}
                     </td>
                 {% endfor %}
@@ -193,5 +197,33 @@
 
     </div>
 </div>
+
+<script id="holiday-data" type="application/json">
+    {{ holiday_bonus|safe|default:"{}" }}
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const holidayDataText = document.getElementById('holiday-data').textContent;
+        const holidayMap = JSON.parse(holidayDataText || '{}');
+
+        const sundayCells = document.querySelectorAll('.day-cell-content[data-is-sunday="true"]');
+
+        sundayCells.forEach(function(cell) {
+            const dateStr = cell.getAttribute('data-date');
+
+            if (holidayMap[dateStr]) {
+                const allowance = holidayMap[dateStr];
+                const formattedAllowance = allowance.toLocaleString('ko-KR');
+                
+                cell.innerHTML += `
+                    <div style="margin-top: auto; padding: 4px; background-color: #feedf7; color: #54575a; font-size: 11px; font-weight: bold; text-align: center; border-radius: 4px;">
+                        주휴 +${formattedAllowance}원
+                    </div>
+                `;
+            }
+        });
+    });
+</script>
 
 {% endblock %}

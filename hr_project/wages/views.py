@@ -50,7 +50,8 @@ def monthly_wage_view(request):
             "hourly_wage": salary_data["hourly_wage"],
             "before_tax": salary_data["before_tax"],
             "after_tax":salary_data["after_tax"],
-            "weekly_bonus" : salary_data["weekly_bonus"]
+            "weekly_bonus" : salary_data["weekly_bonus"],
+            "holiday_bonus" : salary_data["holiday_map_json"]
         })
 
     context = {
@@ -135,6 +136,8 @@ def check_wage_view(request):
         'estimated_salary': estimated_salary,
         'prev_year': prev_year, 'prev_month': prev_month,
         'next_year': next_year, 'next_month': next_month,
+        'holiday_bonus' : salary_data["holiday_map_json"]
+        
     }
     
     return render(request, 'calendar/calendar.html', context)

@@ -21,6 +21,9 @@
     margin: 10px 20px 0;
     justify-content: center;
   }
+  .profile{
+     cursor: default !important;
+  }
 </style>
 </head>
 
@@ -32,7 +35,7 @@
         <span>MEGA COFFEE</span>
       </div>
       
-      <a href="{% url 'accounts:profile' %}" class="profile">
+      <div class="profile">
         <div class="avatar avatar-text">
           {% if user.is_authenticated %}
             {{ user.username|first|upper }}
@@ -49,7 +52,7 @@
             <div class="role">MEGA HR SYSTEM</div>
           {% endif %}
         </div>
-      </a>
+      </div>
 
       <nav class="menu">
         <a href="{% url 'attendances:attendances' %}" class="menu-item {% block nav_attendance_active %}{% endblock %}">
