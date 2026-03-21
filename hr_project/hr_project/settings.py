@@ -145,6 +145,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # 로그인 관련 설정
 # LOGIN_URL: @login_required 데코레이터가 비로그인 사용자를 리다이렉트할 URL
