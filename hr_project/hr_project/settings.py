@@ -36,6 +36,14 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     "211.188.50.11",
+    "mega-hr.site",
+    "www.mega-hr.site",
+]
+
+# Nginx/HTTPS 환경에서 도메인 POST 요청(CSRF)을 허용
+CSRF_TRUSTED_ORIGINS = [
+    "https://mega-hr.site",
+    "https://www.mega-hr.site",
 ]
 
 
