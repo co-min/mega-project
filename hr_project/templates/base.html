@@ -29,7 +29,13 @@
 
 <body>
   <div class="app">
-    <aside class="sidebar">
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="메뉴 토글">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
       <div class="brand">
         <img src="{% static 'img/logo.png' %}" alt="MEGA COFFEE" class="brand-logo" />
         <span>MEGA COFFEE</span>
@@ -99,5 +105,33 @@
       {% block content %}{% endblock %}
     </main>
   </div>
+  <script>
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    // 햄버거 메뉴 클릭 시 사이드바 토글
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      sidebarOverlay.classList.toggle('active');
+    });
+
+    // 오버레이 클릭 시 사이드바 닫기
+    sidebarOverlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('active');
+    });
+
+    // 메뉴 항목 클릭 시 사이드바 닫기 (작은 화면)
+    const menuItems = document.querySelectorAll('.menu-item, .sidebar a');
+    menuItems.forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 1024) {
+          sidebar.classList.remove('open');
+          sidebarOverlay.classList.remove('active');
+        }
+      });
+    });
+  </script>
 </body>
 </html>

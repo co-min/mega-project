@@ -25,6 +25,7 @@
       justify-content: center;
       align-items: center;
       padding: 3rem;
+      min-width: 0;
     }
     .logo {
       font-size: 2.5rem;
@@ -65,7 +66,13 @@
     }
     .time-display {
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
+    }
+    .checkin-title {
+      font-size: 1rem;
+      color: #78350f;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
     }
     .current-time {
       font-size: 3rem;
@@ -150,19 +157,95 @@
       color: #92400e;
       border: 1px solid #fcd34d;
     }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 768px) {
+      .checkin-container {
+        flex-direction: column;
+      }
+      .left-panel {
+        flex: 0.4;
+        padding: 2rem 1rem;
+        justify-content: flex-start;
+        padding-top: 1rem;
+      }
+      .promo-image {
+        max-width: 250px;
+      }
+      .promo-text h2 {
+        font-size: 1.3rem;
+      }
+      .promo-text p {
+        font-size: 0.9rem;
+      }
+      .right-panel {
+        flex: 0.6;
+        padding: 1.5rem;
+      }
+      .checkin-form {
+        max-width: 100%;
+      }
+      .current-time {
+        font-size: 2rem;
+      }
+      .current-date {
+        font-size: 0.95rem;
+      }
+      .checkin-title {
+        font-size: 1.1rem;
+      }
+      .pin-display {
+        font-size: 2rem;
+        padding: 1.5rem;
+        min-height: 60px;
+      }
+      .key {
+        padding: 1.5rem;
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .checkin-container {
+        flex-direction: column;
+      }
+      .left-panel {
+        display: none;
+      }
+      .right-panel {
+        flex: 1;
+        justify-content: center;
+        padding: 1rem;
+      }
+      .checkin-form {
+        max-width: 100%;
+      }
+      .current-time {
+        font-size: 1.8rem;
+      }
+      .checkin-title {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+      .pin-display {
+        font-size: 1.8rem;
+        padding: 1rem;
+        min-height: 50px;
+        margin-bottom: 1.5rem;
+      }
+      .keypad {
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+      }
+      .key {
+        padding: 1.2rem;
+        font-size: 1.2rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="checkin-container">
-    <div class="left-panel">
-      <div class="logo">🏪 MEGA☕COFFEE</div>
-      <img src="{% static 'img/promo.jpg' %}" alt="메가커피 비타사카리버" class="promo-image" onerror="this.style.display='none'">
-      <div class="promo-text">
-        <h2>하루에 한 잔! 메가 즐기는 매일의 커피</h2>
-        <h1>DAILY COFFEE</h1>
-        <p>안녕 어디서나, 무담스럽지 않은 가격과 대용량으로<br>모든 사람들에게 사랑받는 메가MGC커피 입니다.</p>
-      </div>
-    </div>
+
     
     <div class="right-panel">
       <div class="checkin-form">
