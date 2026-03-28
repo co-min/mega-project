@@ -5,251 +5,223 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>출근 체크인 · Mega Coffee</title>
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <style>
-    body {
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      height: 100%;
+      overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fffbeb;
     }
+
+    /* ── 전체 컨테이너: 4:3 화면 기준 ── */
     .checkin-container {
       display: flex;
+      width: 100vw;
       height: 100vh;
+      overflow: hidden;
     }
+
+    /* ── 왼쪽 브랜드 패널 (45%) ── */
     .left-panel {
-      flex: 1;
-      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      flex: 0 0 45%;
+      background: linear-gradient(160deg, #fef3c7 0%, #fde68a 60%, #fbbf24 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 3rem;
-      min-width: 0;
+      padding: 4vh 3vw;
+      overflow: hidden;
     }
-    .logo {
-      font-size: 2.5rem;
-      font-weight: bold;
-      margin-bottom: 2rem;
+
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 3vh;
+    }
+    .brand-logo-wrap img {
+      width: clamp(36px, 5vh, 52px);
+      height: clamp(36px, 5vh, 52px);
+    }
+    .brand-name {
+      font-size: clamp(1.4rem, 3.2vh, 2rem);
+      font-weight: 900;
       color: #78350f;
+      letter-spacing: -0.5px;
     }
-    .promo-image {
-      max-width: 400px;
-      border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+
+    .promo-image-wrap {
+      width: min(280px, 32vw);
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.18);
+      margin-bottom: 3vh;
     }
+    .promo-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     .promo-text {
-      margin-top: 2rem;
       text-align: center;
     }
     .promo-text h2 {
-      font-size: 1.8rem;
+      font-size: clamp(1.1rem, 2.6vh, 1.6rem);
       color: #78350f;
-      margin-bottom: 0.5rem;
+      margin: 0 0 0.5vh;
+      font-weight: 800;
     }
     .promo-text p {
       color: #92400e;
-      font-size: 1rem;
+      font-size: clamp(0.85rem, 1.8vh, 1.05rem);
+      margin: 0;
+      line-height: 1.6;
     }
+
+    /* ── 오른쪽 키패드 패널 (55%) ── */
     .right-panel {
-      flex: 1;
-      background: white;
+      flex: 0 0 55%;
+      background: #ffffff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 3rem;
+      padding: 3vh 4vw;
+      overflow: hidden;
     }
+
     .checkin-form {
       width: 100%;
-      max-width: 450px;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
+
+    /* 시간 표시 */
     .time-display {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 2.2vh;
     }
     .checkin-title {
-      font-size: 1rem;
+      font-size: clamp(0.75rem, 1.4vh, 0.9rem);
       color: #78350f;
-      font-weight: bold;
-      margin-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 0.4vh;
     }
     .current-time {
-      font-size: 3rem;
-      font-weight: bold;
-      color: #1f2937;
-      margin-bottom: 0.5rem;
+      font-size: clamp(2rem, 5.5vh, 3.4rem);
+      font-weight: 800;
+      color: #111827;
+      line-height: 1;
+      margin-bottom: 0.5vh;
     }
     .current-date {
-      font-size: 1.2rem;
+      font-size: clamp(0.85rem, 1.6vh, 1rem);
       color: #6b7280;
     }
+
+    /* 메시지 */
+    .message {
+      padding: 0.7vh 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5vh;
+      text-align: center;
+      font-size: clamp(0.85rem, 1.6vh, 1rem);
+      font-weight: 600;
+    }
+    .message.success  { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+    .message.error    { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .message.warning  { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+    /* PIN 표시 */
     .pin-display {
       background: #f9fafb;
       border: 2px solid #e5e7eb;
       border-radius: 12px;
-      padding: 2rem;
+      padding: 1.6vh 1rem;
       text-align: center;
-      font-size: 3rem;
-      letter-spacing: 1rem;
-      margin-bottom: 2rem;
-      min-height: 80px;
+      font-size: clamp(1.6rem, 3.8vh, 2.4rem);
+      letter-spacing: 0.8rem;
+      margin-bottom: 1.8vh;
+      min-height: clamp(52px, 8vh, 72px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
+      font-weight: 700;
       color: #1f2937;
     }
+
+    /* 키패드 그리드 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1rem;
+      gap: clamp(6px, 1.2vh, 12px);
     }
+
     .key {
-      background: white;
+      background: #ffffff;
       border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 2rem;
-      font-size: 2rem;
+      border-radius: 10px;
+      height: clamp(52px, 10.5vh, 88px);
+      font-size: clamp(1.1rem, 2.8vh, 1.8rem);
       font-weight: 600;
       color: #1f2937;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: background 0.15s, transform 0.1s;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .key:hover {
-      background: #f9fafb;
-      border-color: #d1d5db;
-    }
-    .key:active {
-      transform: scale(0.95);
-    }
-    .key.backspace {
-      background: #f3f4f6;
-    }
+    .key:hover  { background: #f3f4f6; border-color: #d1d5db; }
+    .key:active { transform: scale(0.94); }
+
+    .key.backspace { background: #f3f4f6; }
+    .key.backspace:hover { background: #e5e7eb; }
+
     .key.confirm {
-      background: #3b82f6;
-      color: white;
-      border-color: #3b82f6;
-    }
-    .key.confirm:hover {
       background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+      font-size: clamp(0.9rem, 2vh, 1.2rem);
+      font-weight: 700;
     }
-    .message {
-      padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    .message.success {
-      background: #d1fae5;
-      color: #065f46;
-      border: 1px solid #6ee7b7;
-    }
-    .message.error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
-    .message.warning {
-      background: #fef3c7;
-      color: #92400e;
-      border: 1px solid #fcd34d;
-    }
-
-    /* ========== Responsive ========== */
-    @media (max-width: 768px) {
-      .checkin-container {
-        flex-direction: column;
-      }
-      .left-panel {
-        flex: 0.4;
-        padding: 2rem 1rem;
-        justify-content: flex-start;
-        padding-top: 1rem;
-      }
-      .promo-image {
-        max-width: 250px;
-      }
-      .promo-text h2 {
-        font-size: 1.3rem;
-      }
-      .promo-text p {
-        font-size: 0.9rem;
-      }
-      .right-panel {
-        flex: 0.6;
-        padding: 1.5rem;
-      }
-      .checkin-form {
-        max-width: 100%;
-      }
-      .current-time {
-        font-size: 2rem;
-      }
-      .current-date {
-        font-size: 0.95rem;
-      }
-      .checkin-title {
-        font-size: 1.1rem;
-      }
-      .pin-display {
-        font-size: 2rem;
-        padding: 1.5rem;
-        min-height: 60px;
-      }
-      .key {
-        padding: 1.5rem;
-        font-size: 1.5rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .checkin-container {
-        flex-direction: column;
-      }
-      .left-panel {
-        display: none;
-      }
-      .right-panel {
-        flex: 1;
-        justify-content: center;
-        padding: 1rem;
-      }
-      .checkin-form {
-        max-width: 100%;
-      }
-      .current-time {
-        font-size: 1.8rem;
-      }
-      .checkin-title {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-      }
-      .pin-display {
-        font-size: 1.8rem;
-        padding: 1rem;
-        min-height: 50px;
-        margin-bottom: 1.5rem;
-      }
-      .keypad {
-        gap: 0.8rem;
-        margin-bottom: 0.8rem;
-      }
-      .key {
-        padding: 1.2rem;
-        font-size: 1.2rem;
-      }
-    }
+    .key.confirm:hover { background: #1d4ed8; }
   </style>
 </head>
 <body>
+  <div class="checkin-container">
 
-    
+    <!-- 왼쪽: 브랜드 -->
+    <div class="left-panel">
+      <div class="brand-logo-wrap">
+        <img src="{% static 'img/logo.png' %}" alt="MEGA COFFEE">
+        <span class="brand-name">MEGA COFFEE</span>
+      </div>
+      <div class="promo-image-wrap">
+        <img src="{% static 'img/logo.png' %}" alt="프로모션 이미지">
+      </div>
+      <div class="promo-text">
+        <h2>직원 출퇴근 관리</h2>
+        <p>4자리 PIN을 입력하여<br>출퇴근을 기록하세요.</p>
+      </div>
+    </div>
+
+    <!-- 오른쪽: 키패드 -->
     <div class="right-panel">
       <div class="checkin-form">
+
         <div class="time-display">
+          <div class="checkin-title">MEGA COFFEE HR</div>
           <div class="current-time" id="currentTime">--:--</div>
           <div class="current-date" id="currentDate">----년 --월 --일</div>
         </div>
@@ -266,7 +238,7 @@
           {% csrf_token %}
           <div class="pin-display" id="pinDisplay">----</div>
           <input type="hidden" name="pin" id="pinInput" value="">
-          
+
           <div class="keypad">
             <button type="button" class="key" onclick="addDigit('1')">1</button>
             <button type="button" class="key" onclick="addDigit('2')">2</button>
@@ -282,6 +254,7 @@
             <button type="button" class="key confirm" onclick="submitPin()">확인</button>
           </div>
         </form>
+
       </div>
     </div>
   </div>
@@ -289,23 +262,18 @@
   <script>
     let pin = '';
     const pinDisplay = document.getElementById('pinDisplay');
-    const pinInput = document.getElementById('pinInput');
-    const form = document.getElementById('checkinForm');
+    const pinInput   = document.getElementById('pinInput');
+    const form       = document.getElementById('checkinForm');
 
     function updateDisplay() {
-      if (pin.length === 0) {
-        pinDisplay.textContent = '----';
-      } else {
-        pinDisplay.textContent = '●'.repeat(pin.length) + '-'.repeat(4 - pin.length);
-      }
+      pinDisplay.textContent = pin.length === 0
+        ? '----'
+        : '●'.repeat(pin.length) + '-'.repeat(4 - pin.length);
       pinInput.value = pin;
     }
 
     function addDigit(digit) {
-      if (pin.length < 4) {
-        pin += digit;
-        updateDisplay();
-      }
+      if (pin.length < 4) { pin += digit; updateDisplay(); }
     }
 
     function backspace() {
@@ -314,41 +282,41 @@
     }
 
     function submitPin() {
-      if (pin.length === 4) {
-        form.submit();
-      } else {
-        alert('4자리 PIN을 입력해주세요.');
-      }
+      if (pin.length === 4) { form.submit(); }
+      else { alert('4자리 PIN을 입력해주세요.'); }
     }
+
+    // 키보드 지원
+    document.addEventListener('keydown', e => {
+      if (e.key >= '0' && e.key <= '9') addDigit(e.key);
+      else if (e.key === 'Backspace') backspace();
+      else if (e.key === 'Enter') submitPin();
+    });
 
     function updateTime() {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-      const weekday = weekdays[now.getDay()];
-
-      document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
-      document.getElementById('currentDate').textContent = `${year}년 ${month}월 ${day}일 ${weekday}요일`;
+      const hh  = String(now.getHours()).padStart(2, '0');
+      const mm  = String(now.getMinutes()).padStart(2, '0');
+      const y   = now.getFullYear();
+      const mo  = String(now.getMonth() + 1).padStart(2, '0');
+      const d   = String(now.getDate()).padStart(2, '0');
+      const wd  = ['일','월','화','수','목','금','토'][now.getDay()];
+      document.getElementById('currentTime').textContent = `${hh}:${mm}`;
+      document.getElementById('currentDate').textContent = `${y}년 ${mo}월 ${d}일 ${wd}요일`;
     }
-
     updateTime();
     setInterval(updateTime, 1000);
 
-    // 메시지 자동 숨김 (메시지가 있을 때만)
-    const messages = document.querySelectorAll('.message');
-    if (messages.length > 0) {
+    // 메시지 자동 숨김
+    const msgs = document.querySelectorAll('.message');
+    if (msgs.length > 0) {
       setTimeout(() => {
-        messages.forEach(msg => {
-          msg.style.transition = 'opacity 0.5s';
-          msg.style.opacity = '0';
-          setTimeout(() => msg.remove(), 500);
+        msgs.forEach(m => {
+          m.style.transition = 'opacity 0.5s';
+          m.style.opacity = '0';
+          setTimeout(() => m.remove(), 500);
         });
-        pin = '';
-        updateDisplay();
+        pin = ''; updateDisplay();
       }, 3000);
     }
   </script>
