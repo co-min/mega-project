@@ -117,6 +117,19 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
 
+  .palette-color.is-unavailable {
+    opacity: 0.35;
+    cursor: not-allowed;
+    filter: grayscale(0.4);
+    transform: none;
+    box-shadow: none;
+  }
+
+  .palette-color.is-unavailable:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
   .palette-color.selected {
     border-color: #1f2937;
     transform: scale(1.05);
@@ -436,6 +449,8 @@
   </form>
 </div>
 
+{{ unavailable_colors|json_script:"unavailable-colors-data" }}
+
 <script>
   const form = document.querySelector('form.form-card');
   const colorBtn = document.getElementById('colorPickerBtn');
@@ -443,6 +458,11 @@
   const pinInput = form.querySelector('input[name="attendance_pin"]');
   const pinConfirmInput = form.querySelector('input[name="pin_confirm"]');
   const paletteColors = document.querySelectorAll('.palette-color');
+  const unavailableColorsData = document.getElementById('unavailable-colors-data');
+  const unavailableColors = unavailableColorsData
+    ? JSON.parse(unavailableColorsData.textContent).map((color) => color.toLowerCase())
+    : [];
+  const unavailableColorSet = new Set(unavailableColors);
 
   // PIN 확인
   function validatePINOnSubmit(e) {
@@ -467,17 +487,38 @@
     colorInput.value = value;
   }
 
+  function markUnavailablePaletteColors() {
+    paletteColors.forEach((btn) => {
+      const buttonColor = (btn.dataset.color || '').toLowerCase();
+      const isUnavailable = unavailableColorSet.has(buttonColor);
+
+      btn.classList.toggle('is-unavailable', isUnavailable);
+      btn.disabled = isUnavailable;
+      btn.setAttribute('aria-disabled', isUnavailable ? 'true' : 'false');
+
+      if (isUnavailable) {
+        btn.title = '이미 다른 직원이 사용 중인 색상입니다';
+      }
+    });
+  }
+
   function selectPaletteColor(color) {
+    const selectedBtn = document.querySelector(`.palette-color[data-color="${color}"]`);
+    if (selectedBtn && selectedBtn.classList.contains('is-unavailable')) {
+      alert('이미 다른 직원이 사용 중인 색상입니다. 다른 색상을 선택해주세요.');
+      return;
+    }
+
     // 모든 팔레트 색상에서 selected 제거
     paletteColors.forEach(btn => btn.classList.remove('selected'));
     
     // 선택된 색상에 selected 추가
-    const selectedBtn = document.querySelector(`.palette-color[data-color="${color}"]`);
     if (selectedBtn) {
       selectedBtn.classList.add('selected');
     }
     
     // 색상 적용
+    lastValidColor = color;
     applySelectedColor(color);
   }
 
@@ -490,8 +531,11 @@
     });
   });
 
+  markUnavailablePaletteColors();
+
   // 초기 색상 적용 (기존 색상이거나 기본값)
   const initialColor = colorInput.value;
+  let lastValidColor = initialColor;
   selectPaletteColor(initialColor);
   
   // 색상 버튼 클릭 시 색상 피커 열기
@@ -499,14 +543,31 @@
   
   // 색상 피커 변경 시 버튼 색상 업데이트
   colorInput.addEventListener('input', (ev) => {
-    applySelectedColor(ev.target.value);
+    const selectedColor = ev.target.value;
+    if (unavailableColorSet.has(selectedColor.toLowerCase())) {
+      alert('이미 다른 직원이 사용 중인 색상입니다. 다른 색상을 선택해주세요.');
+      colorInput.value = lastValidColor;
+      applySelectedColor(lastValidColor);
+      return;
+    }
+
+    lastValidColor = selectedColor;
+    applySelectedColor(selectedColor);
     // 팔레트에서 선택 해제
     paletteColors.forEach(btn => btn.classList.remove('selected'));
   });
   
   // 색상 피커 직접 변경 시에도 버튼 업데이트
   colorInput.addEventListener('change', (ev) => {
-    applySelectedColor(ev.target.value);
+    const selectedColor = ev.target.value;
+    if (unavailableColorSet.has(selectedColor.toLowerCase())) {
+      colorInput.value = lastValidColor;
+      applySelectedColor(lastValidColor);
+      return;
+    }
+
+    lastValidColor = selectedColor;
+    applySelectedColor(selectedColor);
     // 팔레트에서 선택 해제
     paletteColors.forEach(btn => btn.classList.remove('selected'));
   });

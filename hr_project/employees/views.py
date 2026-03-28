@@ -10,6 +10,13 @@ from wages.models import Wage
 from schedules.views import generate_monthly_schedule
 from accounts.decorators import store_required
 
+
+def get_used_color_tags(store, exclude_employee_pk=None):
+    queryset = Employee.objects.filter(store=store, is_active=True)
+    if exclude_employee_pk is not None:
+        queryset = queryset.exclude(pk=exclude_employee_pk)
+    return {color.lower() for color in queryset.values_list('color_tag', flat=True) if color}
+
 # 직원 목록 페이지
 @login_required
 @store_required
@@ -53,7 +60,7 @@ def create_employee_form_view(request):
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
         attendance_pin = request.POST.get('attendance_pin')
-        color_tag = request.POST.get('color_tag')
+        color_tag = request.POST.get('color_tag') or '#22c55e'
         new_hourly_wage = request.POST.get('hourly_wage')
 
         # 중복된 PIN 처리
@@ -63,6 +70,12 @@ def create_employee_form_view(request):
             ).exists():
             messages.error(request, '이미 사용중인 PIN입니다.')
             return redirect(request.path)
+
+        used_color_tags = get_used_color_tags(store)
+        if color_tag.lower() in used_color_tags:
+            messages.error(request, '이미 다른 직원이 사용 중인 색상입니다.')
+            return redirect(request.path)
+
         try:
             with transaction.atomic():
                 # 직원 생성
@@ -99,6 +112,7 @@ def create_employee_form_view(request):
         'WEEKDAYS': WEEKDAYS,
         'WORK_TYPE' : WORK_TYPE,
         'wage_options' : wage_options,
+        'unavailable_colors': sorted(get_used_color_tags(store)),
         
     }
     return render(request, 'employee/employee_form.html', context ) 
@@ -117,8 +131,7 @@ def edit_employee_form_view(request, pk):
         start_time = request.POST.get('start_time')
         end_time = request.POST.get('end_time')
         attendance_pin = request.POST.get('attendance_pin')
-        color_tag = request.POST.get('color_tag')
-        color_tag = request.POST.get('color_tag')
+        color_tag = request.POST.get('color_tag') or employee.color_tag
         new_hourly_wage = request.POST.get('hourly_wage')
 
 
@@ -129,6 +142,12 @@ def edit_employee_form_view(request, pk):
             ).exclude(pk=pk).exists():
             messages.error(request, '이미 사용중인 PIN입니다.')
             return redirect(request.path)
+
+        used_color_tags = get_used_color_tags(store, exclude_employee_pk=pk)
+        if color_tag.lower() in used_color_tags:
+            messages.error(request, '이미 다른 직원이 사용 중인 색상입니다.')
+            return redirect(request.path)
+
         try:
             with transaction.atomic():
                 # 직원 수정
@@ -197,6 +216,7 @@ def edit_employee_form_view(request, pk):
         'initial_work_type': initial_work_type,
         'initial_start_time': initial_start_time,
         'initial_end_time': initial_end_time,
+        'unavailable_colors': sorted(get_used_color_tags(store, exclude_employee_pk=pk)),
     }
     return render(request, 'employee/employee_form.html', context ) 
         
