@@ -32,14 +32,14 @@ environ.Env.read_env(BASE_DIR / '.env')
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
-    # "211.188.50.11",
-    # ".mega-hr.site",
-    # "localhost",
-    # "127.0.0.1",
-    # "megacoding",
+    "211.188.50.11",
+    ".mega-hr.site",
+    "localhost",
+    "127.0.0.1",
+    "megacoding",
 ]
 
 # Nginx/HTTPS 환경에서 도메인 POST 요청(CSRF)을 허용
