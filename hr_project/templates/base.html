@@ -3,6 +3,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>{% block title %}Mega Coffee HR{% endblock %}</title>
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 <style>
@@ -28,12 +29,15 @@
 </head>
 
 <body>
-  <div class="app">
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="메뉴 토글">
-      <span></span>
-      <span></span>
-      <span></span>
+  <!-- 모바일 전용 상단 바 -->
+  <div class="mobile-topbar" aria-hidden="true">
+    <button class="mobile-menu-btn" id="sidebarToggleMobile" aria-label="메뉴 열기">
+      <span></span><span></span><span></span>
     </button>
+    <span class="mobile-topbar-brand">☕ MEGA COFFEE</span>
+  </div>
+
+  <div class="app">
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
       <div class="brand">
@@ -106,30 +110,31 @@
     </main>
   </div>
   <script>
-    const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const mobileTrigger = document.getElementById('sidebarToggleMobile');
 
-    // 햄버거 메뉴 클릭 시 사이드바 토글
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      sidebarOverlay.classList.toggle('active');
-    });
-
-    // 오버레이 클릭 시 사이드바 닫기
-    sidebarOverlay.addEventListener('click', () => {
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('active');
+    }
+    function closeSidebar() {
       sidebar.classList.remove('open');
       sidebarOverlay.classList.remove('active');
-    });
+    }
 
-    // 메뉴 항목 클릭 시 사이드바 닫기 (작은 화면)
-    const menuItems = document.querySelectorAll('.menu-item, .sidebar a');
-    menuItems.forEach(item => {
+    if (mobileTrigger) {
+      mobileTrigger.addEventListener('click', () => {
+        sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+      });
+    }
+
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // 모바일에서 메뉴 항목 클릭 시 사이드바 닫기
+    document.querySelectorAll('.menu-item, .sidebar a').forEach(item => {
       item.addEventListener('click', () => {
-        if (window.innerWidth <= 1024) {
-          sidebar.classList.remove('open');
-          sidebarOverlay.classList.remove('active');
-        }
+        if (window.innerWidth <= 768) closeSidebar();
       });
     });
   </script>

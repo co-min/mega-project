@@ -192,6 +192,45 @@
     .btn-close-modal {
         position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: #999;
     }
+
+    /* 테이블 스크롤 래퍼 */
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== 모바일 ===== */
+    @media (max-width: 768px) {
+        .daily-card { padding: 14px 16px; }
+        .header-area { flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+        .title-date-group { flex-wrap: wrap; gap: 8px; }
+        .page-title { font-size: 17px; }
+        .date-pill { padding: 6px 12px; font-size: 13px; }
+        .btn-pos { padding: 8px 14px; font-size: 13px; }
+
+        .table-custom { min-width: 520px; }
+        .table-custom th { font-size: 11px; padding-bottom: 8px; }
+        .table-custom td { padding: 10px 2px; font-size: 13px; }
+        .table-custom th:first-child,
+        .table-custom td:first-child { padding-left: 10px; }
+
+        .time-box { padding: 4px 8px; font-size: 12px; }
+        .status-badge { padding: 4px 8px; font-size: 11px; min-width: 50px; }
+        .break-btn { padding: 3px 7px; font-size: 11px; }
+
+        .modal-box {
+            width: calc(100vw - 32px);
+            max-width: 340px;
+            padding: 22px;
+            border-radius: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .table-custom th:nth-child(5),
+        .table-custom td:nth-child(5) { display: none; } /* 휴게시간 컬럼 숨김 */
+        .table-custom { min-width: 380px; }
+    }
 </style>
 
 <div class="container-fluid mt-2">
@@ -228,6 +267,7 @@
                 출퇴근 포스
             </a>
         </div>
+        <div class="table-scroll-wrapper">
         <table class="table-custom">
             <thead>
                 <tr>
@@ -309,6 +349,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div><!-- /table-scroll-wrapper -->
     </div>
 </div>
 

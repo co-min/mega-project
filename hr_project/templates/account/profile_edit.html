@@ -5,39 +5,40 @@
 <style>
     .edit-card {
         max-width: 500px;
-        margin: 60px auto;
-        padding: 40px;
+        margin: 16px auto;
+        padding: 24px 28px;
         background: white;
-        border-radius: 20px;
+        border-radius: 16px;
         box-shadow: 0 4px 24px rgba(0,0,0,0.06);
     }
-    
+
     .edit-title {
         font-weight: 800;
-        margin-bottom: 30px;
+        margin-bottom: 16px;
         text-align: center;
+        font-size: 18px;
     }
-    
+
     .section-title {
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         color: #2563eb;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
     }
-    
+
     .section-divider {
         border-top: 1px solid #eee;
-        margin: 30px 0;
+        margin: 16px 0;
     }
-    
+
     .edit-input {
         width: 100%;
-        padding: 12px 14px;
+        padding: 9px 12px;
         border: 1px solid #ddd;
         border-radius: 8px;
-        margin-top: 6px;
-        margin-bottom: 20px;
-        font-size: 15px;
+        margin-top: 4px;
+        margin-bottom: 12px;
+        font-size: 14px;
         box-sizing: border-box;
     }
     
@@ -54,13 +55,13 @@
     
     .btn-save {
         width: 100%;
-        padding: 14px;
+        padding: 11px;
         background: #2563eb;
         color: white;
         border: none;
         border-radius: 8px;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 14px;
         cursor: pointer;
         transition: 0.2s;
     }
@@ -103,6 +104,18 @@
     .place-item:hover { background: #f8fafc; }
     .place-item strong { color: #1e293b; font-size: 15px; }
     .place-item span { color: #64748b; font-size: 13px; display: block; margin-top: 4px; }
+
+    /* ===== 모바일 ===== */
+    @media (max-width: 768px) {
+        .edit-card {
+            margin: 10px auto;
+            padding: 20px 18px;
+            border-radius: 14px;
+            max-width: 100%;
+        }
+        .edit-input { font-size: 16px; } /* iOS 자동 확대 방지 */
+        .btn-save { font-size: 16px; padding: 13px; }
+    }
 </style>
 
 <div class="edit-card">
