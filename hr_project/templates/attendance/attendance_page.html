@@ -11,19 +11,18 @@
     /* 1. 메인 카드 */
     .daily-card {
         background: #fff;
-        border-radius: 20px;
+        border-radius: 16px;
         box-shadow: 0 4px 24px rgba(0,0,0,0.04);
-        padding: 40px;
-        min-height: 700px;
+        padding: 24px 28px;
         font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     }
 
     /* 2. 헤더 레이아웃 (제목 + 날짜선택기 | 포스버튼) */
     .header-area {
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
     }
     
     /* 제목과 날짜 선택기를 감싸는 그룹 */
@@ -34,11 +33,11 @@
     }
 
     .page-title {
-        font-size: 26px; 
-        font-weight: 800; 
-        color: #111; 
-        margin: 0; /* 마진 제거 (flex gap으로 조절) */
-        letter-spacing: -0.5px;
+        font-size: 20px;
+        font-weight: 800;
+        color: #111;
+        margin: 0;
+        letter-spacing: -0.4px;
     }
 
     /* 날짜 네비게이션 (화살표 + 날짜알약) */
@@ -114,14 +113,14 @@
     /* 4. 테이블 스타일 */
     .table-custom { width: 100%; border-collapse: separate; border-spacing: 0; }
     .table-custom th {
-        color: #999; font-weight: 700; font-size: 13px;
-        border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;
+        color: #999; font-weight: 700; font-size: 12px;
+        border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
         text-align: center;
     }
     .table-custom td {
-        padding: 24px 0; border-bottom: 1px solid #f8f9fa;
+        padding: 14px 0; border-bottom: 1px solid #f8f9fa;
         vertical-align: middle; text-align: center;
-        color: #333; font-weight: 600; font-size: 15px;
+        color: #333; font-weight: 600; font-size: 14px;
     }
     .table-custom th:first-child, .table-custom td:first-child {
         text-align: left; padding-left: 20px; /* 이름 컬럼 여백 */
@@ -195,7 +194,7 @@
     }
 </style>
 
-<div class="container mt-5">
+<div class="container-fluid mt-2">
     <div class="daily-card">
         
         <div class="header-area">
