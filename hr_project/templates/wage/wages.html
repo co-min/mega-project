@@ -121,6 +121,41 @@
     }
     .wage-chip:hover { border-color: #2962ff; color: #2962ff; background: #f0f7ff; }
 
+    /* 테이블 스크롤 래퍼 */
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== 모바일 ===== */
+    @media (max-width: 768px) {
+        .wage-card { padding: 14px 16px; }
+        .header-area { flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+        .title-group { flex: 1; }
+        .page-title { font-size: 17px; }
+        .date-nav { flex-wrap: wrap; gap: 8px; }
+
+        .table-custom { min-width: 460px; }
+        .table-custom th { font-size: 11px; padding-bottom: 8px; }
+        .table-custom td { padding: 10px 2px; font-size: 12px; }
+        .wage-badge { padding: 4px 8px; font-size: 12px; }
+        .total-salary { font-size: 13px; }
+
+        .modal-box {
+            width: calc(100vw - 32px);
+            max-width: 360px;
+            padding: 22px;
+            border-radius: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        /* 소형 모바일: 주휴수당 컬럼 숨김 */
+        .table-custom th:nth-child(4),
+        .table-custom td:nth-child(4) { display: none; }
+        .table-custom { min-width: 360px; }
+    }
+
 </style>
 
 <div class="container-fluid mt-2">
@@ -163,6 +198,7 @@
             </div>
         </div>
 
+        <div class="table-scroll-wrapper">
         <table class="table-custom">
             <thead>
                 <tr>
@@ -213,6 +249,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div><!-- /table-scroll-wrapper -->
     </div>
 </div>
 

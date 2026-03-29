@@ -35,11 +35,11 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "211.188.50.11",
-    ".mega-hr.site",
-    "localhost",
-    "127.0.0.1",
-    "megacoding",
+    # "211.188.50.11",
+    # ".mega-hr.site",
+    # "localhost",
+    # "127.0.0.1",
+    # "megacoding",
 ]
 
 # Nginx/HTTPS 환경에서 도메인 POST 요청(CSRF)을 허용

@@ -8,8 +8,8 @@
 <style>
 .dashboard-card {
     background:#fff;
-    border-radius:18px;
-    padding:36px;
+    border-radius:16px;
+    padding:20px 24px;
     box-shadow:0 6px 25px rgba(0,0,0,0.04);
 }
 
@@ -17,27 +17,30 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:30px;
+    margin-bottom:16px;
 }
 
 .emp-badge {
-    background:#f5f5f5;
-    padding:6px 16px;
+    background:#f0f0f0;
+    padding:6px 14px;
     border-radius:10px;
     font-weight:700;
+    font-size:14px;
+    color:#1e293b;
 }
 
 .month-nav {
-    font-size:22px;
+    font-size:18px;
     font-weight:800;
     display:flex;
-    gap:18px;
+    gap:14px;
     align-items:center;
+    color:#0f172a;
 }
 
 .nav-arrow {
-    color:#bbb;
-    font-size:20px;
+    color:#94a3b8;
+    font-size:18px;
     text-decoration:none;
 }
 .nav-arrow:hover { color:#111; }
@@ -46,12 +49,13 @@
     text-align:right;
 }
 .salary-box .time {
-    font-size:13px;
-    color:#888;
+    font-size:12px;
+    color:#64748b;
 }
 .salary-box .salary {
-    font-size:20px;
+    font-size:18px;
     font-weight:800;
+    color:#0f172a;
 }
 
 /* 캘린더 */
@@ -62,62 +66,115 @@
 }
 
 .calendar-table th {
-    padding:10px;
-    font-size:13px;
-    color:#999;
-    border-bottom:1px solid #eee;
+    padding:8px 6px;
+    font-size:12px;
+    font-weight:700;
+    color:#475569;
+    border-bottom:1px solid #e2e8f0;
     text-align:left;
 }
 
 .calendar-table td {
-    height:120px;
-    border:1px solid #f3f3f3;
+    height:90px;
+    border:1px solid #f1f5f9;
     vertical-align:top;
-    padding:8px;
+    padding:6px 8px;
+    overflow:hidden;
 }
 
 .day-num {
     font-size:12px;
-    color:#aaa;
-    margin-bottom:6px;
+    color:#64748b;
+    font-weight:600;
+    margin-bottom:4px;
     display:block;
 }
 
 .work-item {
     font-size:12px;
-    font-weight:600;
-    margin-bottom:4px;
+    font-weight:700;
+    margin-bottom:3px;
     display:flex;
     align-items:center;
-    gap:6px;
+    gap:5px;
+    white-space:nowrap;
+    overflow:hidden;
 }
 
 .dot {
     width:7px;
     height:7px;
     border-radius:50%;
+    flex-shrink:0;
 }
 
 .time-text {
-    font-weight:400;
+    font-weight:500;
     font-size:11px;
-    color:#666;
+    color:#475569;
+    white-space:nowrap;
 }
 
 .break-badge {
     font-size:11px;
     color:#2962ff;
-    margin-left:12px;
+    margin-left:2px;
+    white-space:nowrap;
 }
 
 /* 상태 */
-.planned { opacity:0.5; }
-.working { color:#ff6f00; }
-.finished { color:#2e7d32; }
-.absent { color:#d32f2f; }
+.planned { opacity:0.6; }
+.working { color:#c2410c; font-weight:700; }
+.finished { color:#166534; font-weight:700; }
+.absent { color:#991b1b; font-weight:700; }
+
+/* 출근 기록 있는 날 셀 강조 */
+.calendar-table td.has-record {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+.calendar-table td.has-record .day-num {
+    color: #166534;
+    font-weight: 800;
+}
+/* 근무중인 날 */
+.calendar-table td.has-record-working {
+    background: #fff7ed;
+    border-color: #fed7aa;
+}
+.calendar-table td.has-record-working .day-num {
+    color: #c2410c;
+    font-weight: 800;
+}
+
+/* ===== 모바일 ===== */
+@media (max-width: 768px) {
+    .dashboard-card { padding: 14px 10px; }
+    .top-bar { flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .month-nav { font-size: 16px; gap: 10px; }
+    .salary-box .salary { font-size: 15px; }
+    .salary-box .time { font-size: 11px; }
+    .emp-badge { font-size: 13px; padding: 5px 10px; }
+
+    .calendar-table th { font-size: 11px; padding: 6px 2px; }
+    .calendar-table td { height: 72px; padding: 4px 4px; }
+    .day-num { font-size: 11px; margin-bottom: 3px; }
+    .work-item { font-size: 11px; gap: 3px; }
+    .time-text { font-size: 10px; }
+    .break-badge { display: none; }
+}
+
+@media (max-width: 480px) {
+    .dashboard-card { padding: 10px 8px; }
+    .calendar-table td { height: 56px; padding: 3px; }
+    .calendar-table th { font-size: 10px; padding: 5px 1px; }
+    .day-num { font-size: 10px; }
+    .time-text { display: none; }
+    .top-bar { gap: 6px; }
+}
 </style>
 
-<div class="container mt-4">
+<div class="container-fluid mt-2">
     <div class="dashboard-card">
 
         <div class="top-bar">
@@ -156,7 +213,7 @@
             {% for week in calendar_matrix %}
                 <tr>
                 {% for item in week %}
-                    <td>
+                    <td class="{% if item.attendance and item.attendance.time %}{% if item.attendance.css_class == 'working' %}has-record-working{% else %}has-record{% endif %}{% endif %}">
                         {% if item.day != 0 %}
                             <div class="day-cell-content" 
                                  data-date="{{ year }}-{{ month|stringformat:'02d' }}-{{ item.day|stringformat:'02d' }}" 
@@ -172,8 +229,6 @@
                                         <div class="dot"
                                             style="background: {{ employee.color_tag|default:'#ff3d3d' }}">
                                         </div>
-                                        {{ employee.full_name }}
-
                                         <span class="time-text">
                                             {{ item.attendance.time }}
                                         </span>

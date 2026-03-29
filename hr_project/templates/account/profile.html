@@ -8,9 +8,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;p
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid #eef2f7;
   }
   
@@ -33,15 +33,15 @@
   }
   
   .profile-avatar-placeholder {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   }
@@ -117,7 +117,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem;
   }
   
   .store-section-title {
@@ -165,9 +165,9 @@
 
 
   .dev-credits-divider {
-    margin: 2rem 0 1rem 0;
+    margin: 1rem 0 0.5rem 0;
     border: 0;
-    border-top: 1px solid #f1f5f9; /* 아주 연한 구분선 */
+    border-top: 1px solid #f1f5f9;
   }
 
   .dev-credits-container {
@@ -206,6 +206,20 @@
   
   .dev-github-link:hover {
     color: #2563eb;
+  }
+
+  /* ===== 모바일 ===== */
+  @media (max-width: 768px) {
+    .profile-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .profile-name { font-size: 1.2rem; }
+    .profile-actions { width: 100%; }
+    .btn-edit-profile { width: 100%; justify-content: center; }
+    .store-card { flex-direction: column; gap: 8px; }
+    .dev-credits-container { flex-direction: column; gap: 8px; }
   }
 </style>
 
