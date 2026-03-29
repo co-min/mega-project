@@ -128,6 +128,25 @@
 .finished { color:#166534; font-weight:700; }
 .absent { color:#991b1b; font-weight:700; }
 
+/* 출근 기록 있는 날 셀 강조 */
+.calendar-table td.has-record {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+.calendar-table td.has-record .day-num {
+    color: #166534;
+    font-weight: 800;
+}
+/* 근무중인 날 */
+.calendar-table td.has-record-working {
+    background: #fff7ed;
+    border-color: #fed7aa;
+}
+.calendar-table td.has-record-working .day-num {
+    color: #c2410c;
+    font-weight: 800;
+}
+
 /* ===== 모바일 ===== */
 @media (max-width: 768px) {
     .dashboard-card { padding: 14px 10px; }
@@ -194,7 +213,7 @@
             {% for week in calendar_matrix %}
                 <tr>
                 {% for item in week %}
-                    <td>
+                    <td class="{% if item.attendance and item.attendance.time %}{% if item.attendance.css_class == 'working' %}has-record-working{% else %}has-record{% endif %}{% endif %}">
                         {% if item.day != 0 %}
                             <div class="day-cell-content" 
                                  data-date="{{ year }}-{{ month|stringformat:'02d' }}-{{ item.day|stringformat:'02d' }}" 
@@ -210,8 +229,6 @@
                                         <div class="dot"
                                             style="background: {{ employee.color_tag|default:'#ff3d3d' }}">
                                         </div>
-                                        {{ employee.full_name }}
-
                                         <span class="time-text">
                                             {{ item.attendance.time }}
                                         </span>

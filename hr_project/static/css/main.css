@@ -149,11 +149,23 @@ body {
     box-shadow: inset 0 0 0 1px #e5e7eb;
 }
 
-/* button 태그로 된 menu-item(로그아웃 등)이 a 태그와 동일한 크기로 렌더링되도록 */
-button.menu-item {
+/* button 태그 menu-item — a 태그와 완전히 동일한 크기/스타일 */
+.menu-item-btn {
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    /* 브라우저 button 기본값 제거 */
+    margin: 0;
+    padding: 9px 10px;        /* .menu-item과 동일 */
+    font-size: 14px;          /* .menu-item과 동일 */
+    font-family: inherit;
     line-height: 1.4;
     box-sizing: border-box;
     color: #334155;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 /* ========== Page Header ========== */

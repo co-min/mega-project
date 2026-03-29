@@ -327,14 +327,16 @@
   <form class="card form-card" method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div class="form-section">
+    <!-- 기본 정보: 상단 전체 폭 -->
+    <div class="form-section" style="grid-column: 1 / -1;">
       <h3 class="section-title">👤 기본 정보</h3>
-        <div class="form-field">
-          <label>이름 *</label>
-          <input type="text" name="full_name" placeholder="이름을 입력하세요" value="{{ employee.full_name|default:'' }}" required />
-        </div>
+      <div class="form-field">
+        <label>이름 *</label>
+        <input type="text" name="full_name" placeholder="이름을 입력하세요" value="{{ employee.full_name|default:'' }}" required />
+      </div>
     </div>
 
+    <!-- 근무 정보: 왼쪽 컬럼 -->
     <div class="form-section">
     <h3 class="section-title">💼 근무 정보</h3>
     <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -392,6 +394,7 @@
     </div>
   </div>
 
+    <!-- 시스템 설정: 오른쪽 컬럼 -->
     <div class="form-section">
       <h3 class="section-title">⚙️ 시스템 설정</h3>
       
